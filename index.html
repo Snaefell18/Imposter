@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Imposter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0C2724;
+    --ink-2:#123734;
+    --ink-3:#1B4642;
+    --line:rgba(244,239,228,.14);
+    --paper:#F4EFE4;
+    --paper-2:#E7DFCD;
+    --muted:#8CB0AA;
+    --yellow:#FFC93C;
+    --magenta:#E23E6B;
+    --ok:#5BD6A4;
+    --r:18px;
+    --display:"Bricolage Grotesque", system-ui, sans-serif;
+    --body:"DM Sans", system-ui, sans-serif;
+    --mono:"DM Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #16413C 0%, transparent 60%),
+      var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100dvh;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:22px 18px calc(34px + env(safe-area-inset-bottom))}
+  .screen{display:none;animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  .screen.on{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ---------- type ---------- */
+  h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.02}
+  h1{font-size:2.55rem;font-weight:800}
+  h2{font-size:1.5rem;font-weight:700}
+  h3{font-size:1.05rem;font-weight:700}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  p{line-height:1.55;color:#CFE0DC;margin:.5rem 0}
+  .dim{color:var(--muted);font-size:.9rem}
+
+  /* ---------- surfaces ---------- */
+  .card{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .card + .card{margin-top:12px}
+  .stack{margin-top:22px}
+
+  /* ---------- buttons ---------- */
+  button{font-family:var(--body);font-size:1rem;cursor:pointer;border:0;transition:transform .12s ease, filter .15s ease}
+  button:active{transform:scale(.975)}
+  button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 18px;border-radius:14px;font-weight:700;background:var(--paper);color:var(--ink)}
+  .btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--line)}
+  .btn.yellow{background:var(--yellow);color:#2A1D00}
+  .btn.magenta{background:var(--magenta);color:#fff}
+  .btn:disabled{opacity:.42;cursor:not-allowed}
+  .btn.sm{width:auto;padding:10px 14px;font-size:.9rem;border-radius:11px}
+
+  /* ---------- inputs ---------- */
+  input[type=text]{
+    width:100%;padding:14px 15px;border-radius:13px;border:1px solid var(--line);
+    background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1rem
+  }
+  input[type=text]:focus{outline:2px solid var(--yellow);outline-offset:1px}
+  label{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .row{display:flex;gap:10px;align-items:center}
+
+  /* ---------- avatar ---------- */
+  .ava{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--ink-3);flex:0 0 auto;border:1px solid var(--line)}
+  .ava.lg{width:96px;height:96px}
+  .ava.xl{width:64px;height:64px}
+
+  /* ---------- list rows ---------- */
+  .row-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .row-item:first-child{border-top:0}
+  .row-item .name{font-weight:700;font-size:1rem}
+  .row-item .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+  .grow{flex:1;min-width:0}
+  .name,.sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ---------- the word card ---------- */
+  .slip{
+    position:relative;overflow:hidden;border-radius:20px;
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(12,39,36,.045) 0 1px, transparent 1px 4px);
+    color:var(--ink);
+    min-height:190px;display:grid;place-items:center;text-align:center;padding:26px;
+    box-shadow:0 18px 40px -20px rgba(0,0,0,.7);
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  }
+  .slip-word{font-family:var(--display);font-weight:800;font-size:clamp(2rem,11vw,3.2rem);letter-spacing:-.03em;line-height:1.05;word-break:break-word}
+  .slip-cover{
+    position:absolute;inset:0;display:grid;place-items:center;gap:10px;
+    background:linear-gradient(170deg,#1B4642,#0C2724);
+    border-radius:20px;transition:transform .34s cubic-bezier(.6,.05,.2,1);
+  }
+  .slip.open .slip-cover{transform:translateY(-101%)}
+  .seal{
+    width:88px;height:88px;border-radius:50%;background:var(--yellow);color:#2A1D00;
+    display:grid;place-items:center;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;text-align:center;line-height:1.3;padding:8px
+  }
+  .slip-hint{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .duel{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 14px}
+  .duel .vs{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--muted)}
+
+  .starter{
+    text-align:center;border:1px dashed rgba(255,201,60,.5);background:rgba(255,201,60,.08);
+    border-radius:14px;padding:11px 14px;margin-bottom:16px
+  }
+  .starter .who{font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--yellow);letter-spacing:-.01em}
+  .starter .lbl{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+  .verdict{text-align:center;padding:26px 18px;border-radius:var(--r);border:1px solid var(--line)}
+  .verdict.win{background:rgba(91,214,164,.12);border-color:rgba(91,214,164,.4)}
+  .verdict.lose{background:rgba(226,62,107,.12);border-color:rgba(226,62,107,.4)}
+  .verdict .big{font-family:var(--display);font-weight:800;font-size:2rem;letter-spacing:-.02em}
+
+  .wordpair{display:flex;gap:10px;margin-top:12px}
+  .wordpair > div{flex:1;background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center}
+  .wordpair .w{font-family:var(--display);font-weight:700;font-size:1.15rem;margin-top:4px;word-break:break-word}
+
+  .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .stat{background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center}
+  .stat .n{font-family:var(--display);font-weight:800;font-size:1.8rem;letter-spacing:-.02em}
+  .stat .l{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--ink-3);color:var(--muted)}
+
+  .spinner{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--yellow);animation:spin .8s linear infinite;margin:0 auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,140%);
+    background:var(--paper);color:var(--ink);padding:12px 18px;border-radius:999px;
+    font-weight:700;font-size:.9rem;max-width:88vw;text-align:center;z-index:99;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 12px 30px -12px rgba(0,0,0,.8)
+  }
+  #toast.on{transform:translate(-50%,0)}
+
+  /* ---------- Avatar mit Rahmen und Symbol ---------- */
+  .avaWrap{position:relative;display:inline-block;line-height:0;flex:0 0 auto;isolation:isolate}
+  .avaWrap .ava{position:relative;z-index:1;display:block}
+  .avaWrap::before{content:"";position:absolute;inset:-4px;border-radius:50%;z-index:0;display:none}
+  .avaBadge{
+    position:absolute;right:-2px;bottom:-2px;z-index:2;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--ink);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:11px;line-height:1
+  }
+  .avaWrap.xl .avaBadge{width:25px;height:25px;font-size:14px}
+  .avaWrap.lg .avaBadge{width:33px;height:33px;font-size:19px;right:2px;bottom:2px}
+  .fr-gold  .ava{border-color:#FFC93C;box-shadow:0 0 0 3px rgba(255,201,60,.3)}
+  .fr-rose  .ava{border-color:#E23E6B;box-shadow:0 0 0 3px rgba(226,62,107,.3)}
+  .fr-mint  .ava{border-color:#5BD6A4;box-shadow:0 0 0 3px rgba(91,214,164,.3)}
+  .fr-paper .ava{border-color:#F4EFE4;box-shadow:0 0 0 3px rgba(244,239,228,.22)}
+  .fr-sunset::before{display:block;background:conic-gradient(#FFC93C,#E23E6B,#FFC93C)}
+  .fr-ocean::before {display:block;background:conic-gradient(#5BD6A4,#123734,#5BD6A4)}
+  .fr-royal::before {display:block;background:conic-gradient(#FFC93C,#F4EFE4,#E23E6B,#FFC93C);animation:spinFrame 5s linear infinite}
+  @keyframes spinFrame{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.fr-royal::before{animation:none}}
+
+  /* ---------- Shop & Inventar ---------- */
+  .goldbar{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    background:linear-gradient(160deg,rgba(255,201,60,.16),rgba(255,201,60,.05));
+    border:1px solid rgba(255,201,60,.42);border-radius:var(--r);padding:18px;margin-top:18px
+  }
+  .goldbar .amt{font-family:var(--display);font-weight:800;font-size:2.2rem;color:var(--yellow);letter-spacing:-.02em}
+  .goldbar .lbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .shopgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .item{
+    background:var(--ink);border:1px solid var(--line);border-radius:15px;
+    padding:12px 6px 10px;text-align:center;color:var(--paper);display:block;width:100%
+  }
+  .item .prev{font-size:1.75rem;line-height:1;margin-bottom:7px}
+  .item .nm{font-size:.78rem;font-weight:700;line-height:1.2;display:block}
+  .item .pr{font-family:var(--mono);font-size:.68rem;color:var(--yellow);margin-top:4px;display:block}
+  .item.owned{opacity:.55}
+  .item.owned .pr{color:var(--muted)}
+  .item.poor .pr{color:var(--magenta)}
+  .item.sel{border-color:var(--yellow);background:rgba(255,201,60,.14)}
+  .ring{width:44px;height:44px;border-radius:50%;margin:0 auto 7px;background:var(--ink-3)}
+  .invprev{display:grid;place-items:center;padding:8px 0 4px}
+
+  .iconbtn{
+    flex:0 0 auto;width:42px;height:42px;border-radius:50%;
+    background:var(--ink-2);border:1px solid var(--line);color:var(--muted);
+    display:grid;place-items:center
+  }
+  .iconbtn:hover{color:var(--paper);border-color:var(--muted)}
+  .step-n{
+    font-family:var(--display);font-weight:800;font-size:1.05rem;
+    width:28px;height:28px;border-radius:50%;background:var(--yellow);color:#2A1D00;
+    display:grid;place-items:center;margin-bottom:9px
+  }
+
+  /* ---------- Intro ---------- */
+  #splash{
+    position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+    background:radial-gradient(120% 90% at 50% 40%, #1B4642 0%, #0C2724 62%);
+    padding:24px;text-align:center;
+    animation:splashOut 2.9s cubic-bezier(.6,.05,.2,1) forwards;
+  }
+  @keyframes splashOut{
+    0%,82%{opacity:1;visibility:visible}
+    100%{opacity:0;visibility:hidden;transform:scale(1.06)}
+  }
+  #splash .s-eyebrow{
+    font-family:var(--mono);font-size:.74rem;letter-spacing:.5em;text-transform:uppercase;
+    color:var(--muted);opacity:0;animation:sFade .7s .15s ease forwards
+  }
+  #splash .s-mask{overflow:hidden;padding:2px 0 8px}
+  #splash .s-word{
+    font-family:var(--display);font-weight:800;letter-spacing:-.045em;line-height:1;
+    font-size:clamp(3.1rem,17vw,5.4rem);color:var(--yellow);
+    transform:translateY(105%);animation:sRise .85s .35s cubic-bezier(.16,1,.3,1) forwards
+  }
+  #splash .s-rule{
+    height:2px;width:0;margin:6px auto 14px;background:var(--magenta);
+    animation:sRule .7s .95s cubic-bezier(.5,0,.2,1) forwards
+  }
+  #splash .s-sub{
+    font-family:var(--body);font-size:1.02rem;color:#CFE0DC;opacity:0;
+    animation:sFade .8s 1.15s ease forwards
+  }
+  @keyframes sFade{to{opacity:1}}
+  @keyframes sRise{to{transform:translateY(0)}}
+  @keyframes sRule{to{width:min(230px,62vw)}}
+  #splash.skip{animation:splashOut .28s forwards}
+  @media (prefers-reduced-motion:reduce){
+    #splash{animation:splashOut 2.2s steps(1,end) forwards}
+    #splash .s-eyebrow,#splash .s-word,#splash .s-rule,#splash .s-sub{animation:none;opacity:1;transform:none;width:auto}
+    #splash .s-rule{width:min(230px,62vw)}
+  }
+
+  /* ---------- Auswahl für Kategorie / Schwierigkeit ---------- */
+  select{
+    width:100%;padding:14px 44px 14px 15px;border-radius:13px;border:1px solid var(--line);
+    background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1rem;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238CB0AA' stroke-width='2.5' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:18px
+  }
+  select:focus{outline:2px solid var(--yellow);outline-offset:1px}
+  select option{background:var(--ink-2);color:var(--paper)}
+  .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .level{
+    border:1px solid var(--line);background:var(--ink);border-radius:13px;
+    padding:12px 6px;text-align:center;color:var(--paper);opacity:.62
+  }
+  .level .n{font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1}
+  .level .t{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;margin-top:5px;color:var(--muted)}
+  .level.on{opacity:1;border-color:var(--yellow);background:rgba(255,201,60,.14)}
+  .level.on .t{color:var(--yellow)}
+  .configpill{display:flex;justify-content:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+
+  /* ---------- Sieg-Animation ---------- */
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80;display:none}
+  #fx.on{display:block}
+  .verdict.pop{animation:pop .62s cubic-bezier(.16,1.3,.3,1) both}
+  @keyframes pop{
+    0%{transform:scale(.72) rotate(-2.5deg);opacity:0}
+    55%{transform:scale(1.05) rotate(1deg);opacity:1}
+    100%{transform:scale(1) rotate(0);opacity:1}
+  }
+  .burst{
+    position:absolute;left:50%;top:-6px;transform:translateX(-50%);
+    font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--yellow);
+    text-shadow:0 6px 24px rgba(255,201,60,.55);pointer-events:none;opacity:0
+  }
+  .burst.go{animation:burstUp 1.6s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes burstUp{
+    0%{opacity:0;transform:translate(-50%,14px) scale(.5)}
+    22%{opacity:1;transform:translate(-50%,-14px) scale(1.18)}
+    45%{transform:translate(-50%,-20px) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-64px) scale(.96)}
+  }
+
+  .head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .link{background:none;border:0;color:var(--muted);font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 0}
+  .link:hover{color:var(--paper)}
+  .empty{padding:18px 4px;text-align:center;color:var(--muted);font-size:.9rem}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div>
+    <div class="s-eyebrow">Wir sind</div>
+    <div class="s-mask"><div class="s-word">Imposter</div></div>
+    <div class="s-rule"></div>
+    <div class="s-sub">alle anderen lügen nur</div>
+  </div>
+</div>
+<div class="wrap">
+
+  <!-- LOADING -->
+  <section id="screen-loading" class="screen on">
+    <div style="padding:32vh 0 0"><div class="spinner"></div></div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="screen-auth" class="screen">
+    <div style="padding-top:12vh">
+      <h1>Imposter</h1>
+      <div class="stack">
+        <button class="btn" id="btnGoogle">Mit Google anmelden</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ONBOARDING -->
+  <section id="screen-onboarding" class="screen">
+    <div class="eyebrow">Schritt 1 von 1</div>
+    <h1 style="margin-top:10px">Dein Profil</h1>
+
+    <div class="card stack">
+      <label>Profilbild</label>
+      <div class="row" style="gap:14px">
+        <img id="obAva" class="ava lg" alt="" />
+        <div class="grow">
+          <button class="btn ghost sm" id="obPickPhoto">Bild wählen</button>
+          <p class="dim" style="margin-top:8px;font-size:.8rem">Wird auf 256 px verkleinert und im Profil gespeichert.</p>
+        </div>
+      </div>
+      <input type="file" id="obFile" accept="image/*" class="hidden" />
+    </div>
+
+    <div class="card">
+      <label for="obUsername">Benutzername</label>
+      <input type="text" id="obUsername" placeholder="z. B. jan_niklas" autocomplete="off" maxlength="16" />
+      <p class="dim" style="font-size:.8rem">3–16 Zeichen, Buchstaben, Zahlen und Unterstrich. Einmalig vergeben — darüber finden dich deine Freunde.</p>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="obSave">Profil anlegen</button>
+      <button class="link" id="obSignOut" style="width:100%;margin-top:10px">Abmelden</button>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <div class="head">
+      <span id="homeAvaBox"></span>
+      <div class="grow">
+        <div class="eyebrow">Angemeldet als</div>
+        <h2 id="homeName" style="margin-top:4px">—</h2>
+      </div>
+      <button class="iconbtn" id="btnOptions" aria-label="Optionen">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="invitesCard" class="card hidden" style="border-color:rgba(255,201,60,.45);background:rgba(255,201,60,.07)">
+      <div class="eyebrow" style="color:var(--yellow)">Herausforderung</div>
+      <div id="invitesList" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Freunde</h3>
+        <span class="pill" id="friendCount">0</span>
+      </div>
+      <div id="friendList" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:14px">
+        <input type="text" id="addUsername" placeholder="Benutzername" autocomplete="off" />
+        <button class="btn sm yellow" id="btnAddFriend" style="flex:0 0 auto">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="btnShop">Item-Shop</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="btnTutorial">Tutorial</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="btnStats">Statistiken</button>
+      <button class="link" id="btnSignOut" style="width:100%;margin-top:14px">Abmelden</button>
+    </div>
+  </section>
+
+  <!-- TUTORIAL -->
+  <section id="screen-tutorial" class="screen">
+    <div class="head">
+      <button class="link" id="btnTutorialBack">← Menü</button>
+    </div>
+    <h1>So läuft eine Runde</h1>
+
+    <div class="card stack">
+      <div class="step-n">1</div>
+      <h3>Herausfordern</h3>
+      <p>Such dir einen Freund aus der Liste. <strong>Schnell</strong> startet sofort, <strong>Erweitert</strong> lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">2</div>
+      <h3>Das geheime Wort</h3>
+      <p>Jeder bekommt eine Wortkarte, die nur er sieht — gedrückt halten zum Aufdecken, loslassen verdeckt sie wieder. In der Hälfte aller Runden habt ihr <strong>dasselbe</strong> Wort, in der anderen Hälfte zwei verwandte, aber verschiedene. Ihr wisst nicht, welcher Fall gerade gilt.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">3</div>
+      <h3>Hinweise geben</h3>
+      <p>Die App sagt, wer anfängt. Von da an nennt ihr euch abwechselnd <strong>außerhalb</strong> der App — am Tisch oder per Anruf — je ein einzelnes Hinweiswort zu eurem Wort. Zu deutlich, und du verrätst dich. Zu vage, und du erkennst nichts.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">4</div>
+      <h3>Festlegen</h3>
+      <p>Sobald jemand sicher ist, drückt er <strong>Gleiches Wort</strong> oder <strong>Imposter</strong>. Der erste Tipp beendet die Runde für beide — es zählt also auch, schnell zu sein.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">5</div>
+      <h3>Punkte</h3>
+      <p>Ein richtiger Tipp gibt <strong>einen Punkt</strong>. Wer auf Imposter tippt und recht behält, darf zusätzlich raten, welches Wort der andere hatte. Trifft der Tipp, gibt es einen <strong>zweiten Punkt</strong>. Synonyme und Tippfehler werden akzeptiert, bloß thematisch verwandte Wörter nicht.</p>
+    </div>
+
+    <div class="stack"><button class="btn" id="btnTutorialDone">Verstanden</button></div>
+  </section>
+
+  <!-- OPTIONEN -->
+  <section id="screen-options" class="screen">
+    <div class="head">
+      <button class="link" id="btnOptionsBack">← Menü</button>
+    </div>
+    <h1>Optionen</h1>
+
+    <div class="card stack">
+      <label>Profilbild</label>
+      <div class="row" style="gap:14px">
+        <img id="optAva" class="ava lg" alt="" />
+        <div class="grow">
+          <button class="btn ghost sm" id="optPickPhoto">Neues Bild wählen</button>
+          <p class="dim" style="margin-top:8px;font-size:.8rem">Wird auf 256 px verkleinert.</p>
+        </div>
+      </div>
+      <input type="file" id="optFile" accept="image/*" class="hidden" />
+    </div>
+
+    <div class="card">
+      <label>Benutzername</label>
+      <p id="optName" style="font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0">—</p>
+      <p class="dim" style="font-size:.8rem;margin-top:6px">Der Benutzername ist fest vergeben und lässt sich nicht ändern.</p>
+    </div>
+
+    <div class="card">
+      <label>Aussehen</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Rahmen und Symbol für dein Profilbild wählst du im Inventar.</p>
+      <button class="btn ghost" id="btnInventory">Inventar öffnen</button>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="optSave" disabled>Speichern</button>
+    </div>
+  </section>
+
+  <!-- ITEM-SHOP -->
+  <section id="screen-shop" class="screen">
+    <div class="head">
+      <button class="link" id="btnShopBack">← Menü</button>
+    </div>
+    <h1>Item-Shop</h1>
+
+    <div class="goldbar">
+      <div>
+        <div class="amt" id="shopGold" style="text-align:center">0</div>
+        <div class="lbl" style="text-align:center">Gold</div>
+      </div>
+    </div>
+    <p class="dim" style="font-size:.85rem;margin-top:10px">Ein richtiger Tipp bringt 5 Gold, ein richtiger Tipp mit erratenem Wort 10.</p>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Symbole</h3>
+      <p class="dim" style="font-size:.82rem;margin:2px 0 0">Erscheinen klein unten rechts an deinem Bild.</p>
+      <div class="shopgrid" id="shopBadges"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rahmen</h3>
+      <p class="dim" style="font-size:.82rem;margin:2px 0 0">Umranden dein Profilbild.</p>
+      <div class="shopgrid" id="shopFrames"></div>
+    </div>
+  </section>
+
+  <!-- INVENTAR -->
+  <section id="screen-inventory" class="screen">
+    <div class="head">
+      <button class="link" id="btnInventoryBack">← Zurück</button>
+    </div>
+    <h1>Inventar</h1>
+
+    <div class="card stack">
+      <div class="invprev" id="invPreview"></div>
+      <p class="dim" style="text-align:center;font-size:.85rem;margin:10px 0 0">So sehen dich die anderen.</p>
+    </div>
+
+    <div class="card">
+      <h3>Symbol</h3>
+      <div class="shopgrid" id="invBadges"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rahmen</h3>
+      <div class="shopgrid" id="invFrames"></div>
+    </div>
+
+    <div class="stack"><button class="btn ghost" id="btnToShopFromInv">Zum Item-Shop</button></div>
+  </section>
+
+  <!-- ERWEITERTES DUELL -->
+  <section id="screen-setup" class="screen">
+    <div class="head">
+      <button class="link" id="btnSetupBack">← Menü</button>
+    </div>
+    <div class="row" style="margin-bottom:18px">
+      <span id="setupAvaBox"></span>
+      <div class="grow">
+        <div class="eyebrow">Erweitertes Duell gegen</div>
+        <h2 id="setupName" style="margin-top:4px">—</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <label for="catSelect">Kategorie</label>
+      <select id="catSelect"></select>
+      <p class="dim" style="font-size:.82rem;margin-top:8px">Bei „Zufällig“ wird pro Runde eine Kategorie ausgelost.</p>
+    </div>
+
+    <div class="card">
+      <h3>Schwierigkeit</h3>
+      <p class="dim" style="font-size:.82rem;margin:4px 0 0">Je höher die Stufe, desto ähnlicher liegen die beiden Wörter beieinander — und desto schwerer ist der Imposter zu entlarven.</p>
+      <div class="levels" id="levelPicker"></div>
+      <p class="dim" id="levelDesc" style="font-size:.85rem;margin-top:12px">—</p>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="btnSendSetup">Herausforderung senden</button>
+    </div>
+  </section>
+
+  <!-- WAITING FOR ACCEPT -->
+  <section id="screen-waiting" class="screen">
+    <div style="padding-top:14vh;text-align:center">
+      <div class="spinner"></div>
+      <h2 style="margin-top:22px">Herausforderung verschickt</h2>
+      <p id="waitText" class="dim" style="margin-top:8px">Warte auf Antwort …</p>
+      <div class="stack"><button class="btn ghost" id="btnCancelChallenge">Zurückziehen</button></div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="screen-game" class="screen">
+    <div class="duel">
+      <span id="gMeBox"></span>
+      <span class="vs">gegen</span>
+      <span id="gOppBox"></span>
+    </div>
+
+    <div class="configpill" id="gameConfig"></div>
+
+    <div class="starter">
+      <div class="lbl">Erstes Hinweiswort</div>
+      <div class="who" id="starterWho">—</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:14px">
+      <div class="eyebrow">Dein geheimes Wort</div>
+    </div>
+
+    <div class="slip" id="slip" role="button" tabindex="0" aria-label="Gedrückt halten, um das Wort zu sehen">
+      <div class="slip-word" id="slipWord">…</div>
+      <div class="slip-cover" id="slipCover">
+        <div class="seal">gedrückt<br>halten</div>
+      </div>
+    </div>
+    <p class="slip-hint" style="text-align:center;margin-top:12px">Loslassen verdeckt das Wort wieder</p>
+
+    <div class="stack">
+      <p class="dim" style="text-align:center;margin-bottom:12px">Gebt euch außerhalb der App Hinweise. Wer zuerst tippt, beendet die Runde.</p>
+      <button class="btn yellow" id="btnSame">Gleiches Wort</button>
+      <div style="height:10px"></div>
+      <button class="btn magenta" id="btnImposter">Imposter</button>
+    </div>
+  </section>
+
+  <!-- GUESSING: das gegnerische Wort raten -->
+  <section id="screen-guessing" class="screen">
+    <div style="padding-top:6vh">
+      <div class="eyebrow">Imposter bestätigt</div>
+      <h1 style="margin-top:10px">Rate sein Wort</h1>
+      <p style="margin-top:10px">Ihr hattet unterschiedliche Wörter — der Punkt ist dir sicher. Wenn du jetzt errätst, welches Wort dein Gegner hatte, gibt es einen zweiten.</p>
+
+      <div class="card stack">
+        <label for="wordGuessInput">Dein Tipp</label>
+        <input type="text" id="wordGuessInput" placeholder="ein Wort" autocomplete="off" maxlength="40" />
+        <p class="dim" style="font-size:.8rem">Synonyme und Schreibfehler werden akzeptiert, thematisch verwandte Wörter nicht.</p>
+      </div>
+
+      <div class="stack">
+        <button class="btn yellow" id="btnSubmitWordGuess">Tipp abgeben</button>
+        <div style="height:10px"></div>
+        <button class="btn ghost" id="btnSkipWordGuess">Überspringen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAIT: Gegner rät mein Wort -->
+  <section id="screen-waitguess" class="screen">
+    <div style="padding-top:14vh;text-align:center">
+      <div class="spinner"></div>
+      <h2 style="margin-top:22px" id="wgTitle">Er rät dein Wort</h2>
+      <p id="wgText" class="dim" style="margin-top:8px">—</p>
+      <div class="stack"><button class="btn ghost" id="btnForceEnd">Runde beenden</button></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <div id="verdict" class="verdict" style="margin-top:8vh;position:relative">
+      <div class="burst" id="pointsBurst">+1</div>
+      <div class="eyebrow" id="verdictEyebrow">Runde beendet</div>
+      <div class="big" id="verdictBig" style="margin-top:8px">—</div>
+      <p id="verdictText" style="margin-top:6px"></p>
+    </div>
+
+    <div class="card hidden" id="wordGuessCard">
+      <div class="eyebrow">Der Worttipp</div>
+      <p id="wordGuessText" style="margin-top:6px"></p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="eyebrow">Die Wörter</div>
+      <div class="wordpair">
+        <div><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)" id="wpMeName">Du</div><div class="w" id="wpMeWord">—</div></div>
+        <div><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)" id="wpOppName">Gegner</div><div class="w" id="wpOppWord">—</div></div>
+      </div>
+      <p class="dim" style="margin-top:12px" id="pairNote"></p>
+    </div>
+
+    <div class="stack"><button class="btn" id="btnBackHome">Zurück zum Menü</button></div>
+  </section>
+
+  <!-- STATS -->
+  <section id="screen-stats" class="screen">
+    <div class="head">
+      <button class="link" id="btnStatsBack">← Menü</button>
+    </div>
+    <h1>Statistiken</h1>
+    <div class="card stack">
+      <div class="row">
+        <span id="stAvaBox"></span>
+        <div class="grow"><div class="name" id="stName" style="font-weight:700">—</div><div class="sub" id="stRate" style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">—</div></div>
+      </div>
+      <div class="statgrid">
+        <div class="stat"><div class="n" id="stGames">0</div><div class="l">Runden</div></div>
+        <div class="stat"><div class="n" id="stPoints" style="color:var(--yellow)">0</div><div class="l">Punkte</div></div>
+        <div class="stat"><div class="n" id="stWrong" style="color:var(--magenta)">0</div><div class="l">Daneben</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Rangliste</h3>
+      <div id="leaderboard" style="margin-top:8px"></div>
+    </div>
+  </section>
+
+</div>
+<canvas id="fx"></canvas>
+<div id="toast"></div>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════════
+   1) FIREBASE-KONFIGURATION
+   ══════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyC-YgyPkOS8IJz-3CKYWMfsH6rqZYOZ48M",
+  authDomain:        "imposter-9bae3.firebaseapp.com",
+  projectId:         "imposter-9bae3",
+  storageBucket:     "imposter-9bae3.firebasestorage.app",
+  messagingSenderId: "850278856028",
+  appId:             "1:850278856028:web:4e920ec1533a5939e07d99"
+};
+
+/* Vercel Functions, die die Anthropic API aufrufen. */
+const WORDS_ENDPOINT = "/api/words";
+const CHECK_ENDPOINT = "/api/check";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore, doc, collection, getDoc, setDoc, updateDoc, deleteDoc,
+  onSnapshot, runTransaction, arrayUnion, increment, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ══════════════════════════════════════════════════════════════
+   2) Hilfsfunktionen
+   ══════════════════════════════════════════════════════════════ */
+const $  = id => document.getElementById(id);
+
+/* Intro: läuft per CSS ab, lässt sich antippen und wird danach entfernt. */
+(function(){
+  const sp = $("splash");
+  if (!sp) return;
+  const kill = () => sp.remove();
+  sp.addEventListener("click", () => { sp.classList.add("skip"); setTimeout(kill, 300); });
+  sp.addEventListener("animationend", e => { if (e.animationName === "splashOut") kill(); });
+  setTimeout(kill, 3400);
+})();
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const AVA_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#1B4642"/><circle cx="32" cy="25" r="11" fill="#8CB0AA"/><path d="M8 64c0-14 11-22 24-22s24 8 24 22z" fill="#8CB0AA"/></svg>`
+);
+
+let toastTimer;
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("on"), 2800);
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+  window.scrollTo(0,0);
+}
+function esc(s){ return String(s??"").replace(/[<>&"]/g, c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])); }
+const userRef = uid => doc(db,"users",uid);
+
+/* Firestore-Regeln greifen erst, wenn der Server den Status bestätigt hat.
+   Deshalb wird ein Lesevorgang mehrfach versucht, statt aufzugeben. */
+async function getDocRetry(ref, tries = 8){
+  for (let i = 0; i < tries; i++){
+    try {
+      const s = await getDoc(ref);
+      if (s.exists()) return s;
+    } catch(_){}
+    await sleep(200 + i * 200);
+  }
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3) Zustand
+   ══════════════════════════════════════════════════════════════ */
+let me = null;            // Firebase-Auth-User
+let profile = null;       // users/{uid}
+let unsubProfile = null, unsubInvites = null, unsubGame = null;
+let currentGameId = null, currentGame = null;
+let myWord = null, verdictCache = null, resultCache = null;
+let sideEffectGuard = "";  // verhindert doppelte Schreibvorgänge pro Phase
+let pendingPhoto = null;
+const userCache = new Map();
+
+/* ══════════════════════════════════════════════════════════════
+   4) Anmeldung
+   ══════════════════════════════════════════════════════════════ */
+$("btnGoogle").onclick = async () => {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try { await signInWithPopup(auth, provider); }
+  catch(e){
+    if (String(e.code).includes("popup")) { try { await signInWithRedirect(auth, provider); return; } catch(_){} }
+    toast("Anmeldung fehlgeschlagen: " + (e.code || e.message));
+  }
+};
+$("btnSignOut").onclick = $("obSignOut").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  cleanup();
+  me = user;
+  if (!user){ show("screen-auth"); return; }
+
+  const snap = await getDoc(userRef(user.uid));
+  if (!snap.exists() || !snap.data().username){
+    pendingPhoto = user.photoURL ? await urlToDataUrl(user.photoURL) : null;
+    $("obAva").src = pendingPhoto || AVA_FALLBACK;
+    $("obUsername").value = suggestName(user.displayName || user.email || "");
+    show("screen-onboarding");
+    return;
+  }
+  startSession();
+});
+
+function cleanup(){
+  [unsubProfile, unsubInvites, unsubGame].forEach(f => f && f());
+  unsubProfile = unsubInvites = unsubGame = null;
+  currentGameId = currentGame = myWord = verdictCache = resultCache = profile = null;
+  sideEffectGuard = "";
+}
+function suggestName(s){
+  return s.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,16) || "spieler";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5) Onboarding — Benutzername + Bild
+   ══════════════════════════════════════════════════════════════ */
+$("obPickPhoto").onclick = () => $("obFile").click();
+$("obFile").onchange = async e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  try {
+    pendingPhoto = await resizeImage(file, 256);
+    $("obAva").src = pendingPhoto;
+  } catch(_){ toast("Bild konnte nicht gelesen werden."); }
+};
+
+function resizeImage(file, size){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        const ctx = c.getContext("2d");
+        const s = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+        resolve(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function urlToDataUrl(url){
+  try {
+    const blob = await (await fetch(url, {mode:"cors"})).blob();
+    return await resizeImage(blob, 256);
+  } catch(_){ return null; }
+}
+
+$("obSave").onclick = async () => {
+  const raw = $("obUsername").value.trim();
+  if (!/^[A-Za-z0-9_]{3,16}$/.test(raw)){
+    toast("3–16 Zeichen: Buchstaben, Zahlen, Unterstrich."); return;
+  }
+  const lower = raw.toLowerCase();
+  const btn = $("obSave"); btn.disabled = true; btn.textContent = "Wird angelegt …";
+  try {
+    await runTransaction(db, async tx => {
+      const nameRef = doc(db,"usernames",lower);
+      const taken = await tx.get(nameRef);
+      if (taken.exists() && taken.data().uid !== me.uid) throw new Error("taken");
+      tx.set(nameRef, { uid: me.uid });
+      tx.set(userRef(me.uid), {
+        uid: me.uid,
+        username: raw,
+        usernameLower: lower,
+        photo: pendingPhoto || "",
+        friends: [],
+        activeGameId: null,
+        gold: 0,
+        owned: [],
+        badge: "",
+        frame: "",
+        stats: { games: 0, points: 0, wrong: 0 },
+        createdAt: serverTimestamp()
+      }, { merge: true });
+    });
+    startSession();
+  } catch(e){
+    toast(e.message === "taken" ? "Benutzername ist schon vergeben." : "Fehler: " + (e.code || e.message));
+  } finally { btn.disabled = false; btn.textContent = "Profil anlegen"; }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   6) Session — Live-Listener
+   ══════════════════════════════════════════════════════════════ */
+function startSession(){
+  show("screen-home");
+
+  unsubProfile = onSnapshot(userRef(me.uid), snap => {
+    if (!snap.exists()) return;
+    profile = snap.data();
+    renderHome();
+    renderStats();
+    loadFriends();
+    if ($("screen-shop").classList.contains("on")) renderShop();
+    if ($("screen-inventory").classList.contains("on")) renderInventory();
+    if (profile.activeGameId && profile.activeGameId !== currentGameId) watchGame(profile.activeGameId);
+  });
+
+  unsubInvites = onSnapshot(collection(db,"users",me.uid,"invites"), snap => {
+    renderInvites(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+  });
+}
+
+function renderHome(){
+  $("homeAvaBox").innerHTML = avaHTML(meLook(), "xl");
+  $("homeName").textContent = profile.username;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Items: Symbole und Rahmen
+   ══════════════════════════════════════════════════════════════ */
+const BADGES = [
+  { id:"lupe",   icon:"🔍", label:"Detektiv",  price:25 },
+  { id:"maske",  icon:"🎭", label:"Maske",     price:25 },
+  { id:"kerze",  icon:"🕯️", label:"Kerze",     price:25 },
+  { id:"fuchs",  icon:"🦊", label:"Fuchs",     price:30 },
+  { id:"schlange",icon:"🐍",label:"Schlange",  price:30 },
+  { id:"blitz",  icon:"⚡", label:"Blitz",     price:30 },
+  { id:"flamme", icon:"🔥", label:"Flamme",    price:35 },
+  { id:"eis",    icon:"🧊", label:"Eis",       price:35 },
+  { id:"joker",  icon:"🃏", label:"Joker",     price:40 },
+  { id:"schaedel",icon:"💀",label:"Totenkopf", price:40 },
+  { id:"ufo",    icon:"🛸", label:"Ufo",       price:50 },
+  { id:"krone",  icon:"👑", label:"Krone",     price:80 }
+];
+const FRAMES = [
+  { id:"paper",  label:"Papier",      price:40 },
+  { id:"gold",   label:"Gold",        price:60 },
+  { id:"rose",   label:"Rose",        price:60 },
+  { id:"mint",   label:"Minze",       price:60 },
+  { id:"sunset", label:"Abendrot",    price:120 },
+  { id:"ocean",  label:"Tiefsee",     price:120 },
+  { id:"royal",  label:"Königlich",   price:250 }
+];
+const badgeById = id => BADGES.find(b => b.id === id);
+const frameById = id => FRAMES.find(f => f.id === id);
+
+/* Avatar inklusive Rahmen und Symbol. cls: "", "xl" oder "lg". */
+function avaHTML(u, cls = ""){
+  const frame = u?.frame && frameById(u.frame) ? "fr-" + u.frame : "";
+  const b = badgeById(u?.badge);
+  return `<span class="avaWrap ${cls} ${frame}">`
+    + `<img class="ava ${cls}" src="${esc(u?.photo || AVA_FALLBACK)}" alt="" />`
+    + (b ? `<span class="avaBadge">${b.icon}</span>` : "")
+    + `</span>`;
+}
+function meLook(extra = {}){
+  return { photo: profile?.photo, badge: profile?.badge, frame: profile?.frame, ...extra };
+}
+
+/* ---------- Tutorial ---------- */
+$("btnTutorial").onclick     = () => show("screen-tutorial");
+$("btnTutorialBack").onclick = () => show("screen-home");
+$("btnTutorialDone").onclick = () => show("screen-home");
+
+/* ══════════════════════════════════════════════════════════════
+   Item-Shop und Inventar
+   ══════════════════════════════════════════════════════════════ */
+const gold  = () => profile?.gold ?? 0;
+const owned = () => profile?.owned ?? [];
+
+function framePreview(id){
+  return `<span class="avaWrap ${id ? "fr-" + id : ""}"><span class="ava ring"></span></span>`;
+}
+
+$("btnShop").onclick        = () => { renderShop(); show("screen-shop"); };
+$("btnShopBack").onclick    = () => show("screen-home");
+$("btnInventory").onclick   = () => { renderInventory(); show("screen-inventory"); };
+$("btnInventoryBack").onclick = () => show("screen-options");
+$("btnToShopFromInv").onclick = () => { renderShop(); show("screen-shop"); };
+
+function renderShop(){
+  $("shopGold").textContent = gold();
+  const have = owned();
+
+  $("shopBadges").innerHTML = BADGES.map(b => {
+    const mine = have.includes("b:" + b.id);
+    const poor = !mine && gold() < b.price;
+    return `<button class="item ${mine?"owned":""} ${poor?"poor":""}" data-buy="b:${b.id}" ${mine?"disabled":""}>
+      <div class="prev">${b.icon}</div>
+      <span class="nm">${esc(b.label)}</span>
+      <span class="pr">${mine ? "im Besitz" : b.price + " Gold"}</span>
+    </button>`;
+  }).join("");
+
+  $("shopFrames").innerHTML = FRAMES.map(f => {
+    const mine = have.includes("f:" + f.id);
+    const poor = !mine && gold() < f.price;
+    return `<button class="item ${mine?"owned":""} ${poor?"poor":""}" data-buy="f:${f.id}" ${mine?"disabled":""}>
+      ${framePreview(f.id)}
+      <span class="nm">${esc(f.label)}</span>
+      <span class="pr">${mine ? "im Besitz" : f.price + " Gold"}</span>
+    </button>`;
+  }).join("");
+
+  document.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buyItem(b.dataset.buy));
+}
+
+function priceOf(key){
+  const [kind, id] = key.split(":");
+  const it = kind === "b" ? badgeById(id) : frameById(id);
+  return it ? it.price : Infinity;
+}
+
+async function buyItem(key){
+  if (owned().includes(key)) return;
+  const price = priceOf(key);
+  if (gold() < price){ toast(`Dir fehlen noch ${price - gold()} Gold.`); return; }
+  try {
+    await updateDoc(userRef(me.uid), { gold: increment(-price), owned: arrayUnion(key) });
+    toast("Gekauft. Anlegen kannst du es im Inventar.");
+  } catch(e){ toast("Kauf fehlgeschlagen: " + (e.code || e.message)); }
+}
+
+function renderInventory(){
+  $("invPreview").innerHTML = avaHTML(meLook(), "lg");
+  const have = owned();
+
+  const myBadges = BADGES.filter(b => have.includes("b:" + b.id));
+  $("invBadges").innerHTML =
+    `<button class="item ${!profile?.badge ? "sel" : ""}" data-eq="badge:">
+       <div class="prev">—</div><span class="nm">Keins</span></button>` +
+    myBadges.map(b => `<button class="item ${profile?.badge===b.id?"sel":""}" data-eq="badge:${b.id}">
+       <div class="prev">${b.icon}</div><span class="nm">${esc(b.label)}</span></button>`).join("");
+
+  const myFrames = FRAMES.filter(f => have.includes("f:" + f.id));
+  $("invFrames").innerHTML =
+    `<button class="item ${!profile?.frame ? "sel" : ""}" data-eq="frame:">
+       ${framePreview("")}<span class="nm">Keiner</span></button>` +
+    myFrames.map(f => `<button class="item ${profile?.frame===f.id?"sel":""}" data-eq="frame:${f.id}">
+       ${framePreview(f.id)}<span class="nm">${esc(f.label)}</span></button>`).join("");
+
+  document.querySelectorAll("[data-eq]").forEach(b => b.onclick = () => {
+    const [slot, id] = b.dataset.eq.split(":");
+    equipItem(slot, id);
+  });
+
+  const old = $("invEmpty"); if (old) old.remove();
+  if (!myBadges.length && !myFrames.length){
+    $("invBadges").insertAdjacentHTML("afterend",
+      `<p class="dim" id="invEmpty" style="font-size:.85rem;margin-top:12px">Noch nichts gekauft — im Item-Shop gibt es Symbole ab 25 Gold.</p>`);
+  }
+}
+
+async function equipItem(slot, id){
+  try {
+    await updateDoc(userRef(me.uid), { [slot]: id || "" });
+    userCache.delete(me.uid);
+    renderInventory();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+}
+
+/* ---------- Optionen ---------- */
+let optPhoto = null;
+
+$("btnOptions").onclick = () => {
+  optPhoto = null;
+  $("optAva").src = profile?.photo || AVA_FALLBACK;
+  $("optName").textContent = profile?.username || "—";
+  $("optSave").disabled = true;
+  $("optSave").textContent = "Speichern";
+  show("screen-options");
+};
+$("btnOptionsBack").onclick = () => show("screen-home");
+$("optPickPhoto").onclick = () => $("optFile").click();
+$("optFile").onchange = async e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  try {
+    optPhoto = await resizeImage(file, 256);
+    $("optAva").src = optPhoto;
+    $("optSave").disabled = false;
+  } catch(_){ toast("Bild konnte nicht gelesen werden."); }
+  e.target.value = "";
+};
+$("optSave").onclick = async () => {
+  if (!optPhoto) return;
+  const btn = $("optSave"); btn.disabled = true; btn.textContent = "Wird gespeichert …";
+  try {
+    await updateDoc(userRef(me.uid), { photo: optPhoto });
+    userCache.clear();
+    optPhoto = null;
+    toast("Profilbild aktualisiert.");
+    show("screen-home");
+  } catch(e){
+    toast("Fehler: " + (e.code || e.message));
+    btn.disabled = false; btn.textContent = "Speichern";
+  }
+};
+
+/* ---------- Freunde ---------- */
+async function getUser(uid){
+  if (userCache.has(uid)) return userCache.get(uid);
+  const s = await getDoc(userRef(uid));
+  const d = s.exists() ? s.data() : null;
+  if (d) userCache.set(uid, d);
+  return d;
+}
+
+async function loadFriends(){
+  const ids = profile.friends || [];
+  $("friendCount").textContent = ids.length;
+  const list = $("friendList");
+  if (!ids.length){ list.innerHTML = `<div class="empty">Noch niemand hier. Füge unten einen Benutzernamen hinzu.</div>`; return; }
+
+  const users = (await Promise.all(ids.map(getUser))).filter(Boolean);
+  const busy = !!profile.activeGameId;
+  list.innerHTML = users.map(u => `
+    <div class="row-item">
+      ${avaHTML(u)}
+      <div class="grow">
+        <div class="name">${esc(u.username)}</div>
+        <div class="sub">${(u.stats?.points ?? 0)} Punkte · ${(u.stats?.games ?? 0)} Runden</div>
+      </div>
+      <button class="btn sm yellow" data-challenge="${esc(u.uid)}" ${busy?"disabled":""}>Schnell</button>
+      <button class="btn sm ghost" data-setup="${esc(u.uid)}" ${busy?"disabled":""}>Erweitert</button>
+    </div>`).join("");
+
+  list.querySelectorAll("[data-challenge]").forEach(b => b.onclick = () => challenge(b.dataset.challenge));
+  list.querySelectorAll("[data-setup]").forEach(b => b.onclick = () => openSetup(b.dataset.setup));
+}
+
+$("btnAddFriend").onclick = async () => {
+  const raw = $("addUsername").value.trim().toLowerCase();
+  if (!raw) return;
+  if (raw === profile.usernameLower){ toast("Das bist du selbst."); return; }
+  const btn = $("btnAddFriend"); btn.disabled = true;
+  try {
+    const s = await getDoc(doc(db,"usernames",raw));
+    if (!s.exists()){ toast("Diesen Benutzernamen gibt es nicht."); return; }
+    const fuid = s.data().uid;
+    if ((profile.friends||[]).includes(fuid)){ toast("Ihr seid schon Freunde."); return; }
+    await updateDoc(userRef(me.uid), { friends: arrayUnion(fuid) });
+    await updateDoc(userRef(fuid),   { friends: arrayUnion(me.uid) });
+    $("addUsername").value = "";
+    toast("Freund hinzugefügt.");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+/* ---------- Einladungen ---------- */
+function renderInvites(invites){
+  const card = $("invitesCard"), list = $("invitesList");
+  if (!invites.length){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  list.innerHTML = invites.map(i => `
+    <div class="row-item">
+      ${avaHTML({ photo: i.fromPhoto, badge: i.fromBadge, frame: i.fromFrame })}
+      <div class="grow">
+        <div class="name">${esc(i.fromName)}</div>
+        <div class="sub">${esc(i.configLabel || "fordert dich heraus")}</div>
+      </div>
+      <button class="btn sm yellow" data-accept="${esc(i.gameId)}">Annehmen</button>
+      <button class="btn sm ghost" data-decline="${esc(i.gameId)}">Nein</button>
+    </div>`).join("");
+  list.querySelectorAll("[data-accept]").forEach(b => b.onclick = () => acceptChallenge(b.dataset.accept, b));
+  list.querySelectorAll("[data-decline]").forEach(b => b.onclick = () => declineChallenge(b.dataset.decline));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7) Duell: erstellen, annehmen, ablehnen
+   ══════════════════════════════════════════════════════════════ */
+/* ---------- Erweitertes Duell: Kategorien & Stufen ---------- */
+const CATEGORIES = [
+  "Tiere","Essen & Trinken","Getränke","Berufe","Länder & Städte","Sport",
+  "Musik","Filme & Serien","Natur & Wetter","Werkzeug","Kleidung","Fahrzeuge",
+  "Wohnen & Möbel","Fantasy & Märchen","Technik","Schule & Büro","Feiern & Feste",
+  "Meer & Schiffe","Weltraum","Garten & Pflanzen","Spielzeug","Körper","Geschichte","Alltag"
+];
+const LEVELS = [
+  { n:1, t:"Leicht",  desc:"Gleiche Oberkategorie, aber deutlich verschieden — etwa Hund und Elefant. Der Imposter fällt schnell auf." },
+  { n:2, t:"Normal",  desc:"Eng verwandt, wie Kaffee und Tee. Ein paar Hinweise braucht es schon." },
+  { n:3, t:"Schwer",  desc:"Sehr nah beieinander, etwa Espresso und Cappuccino. Hier wird geblufft." },
+  { n:4, t:"Brutal",  desc:"Kaum zu trennen, wie Cappuccino und Latte Macchiato. Vertrauen hilft nicht mehr." }
+];
+
+let setupOpp = null;
+let setupCat = "";        // leer = zufällig
+let setupLevel = 2;
+
+function openSetup(uid){
+  if (profile.activeGameId){ toast("Du bist schon in einer Runde."); return; }
+  getUser(uid).then(u => {
+    if (!u){ toast("Spieler nicht gefunden."); return; }
+    setupOpp = u;
+    $("setupAvaBox").innerHTML = avaHTML(u, "xl");
+    $("setupName").textContent = u.username;
+    renderSetup();
+    show("screen-setup");
+  });
+}
+
+function renderSetup(){
+  const sel = $("catSelect");
+  sel.innerHTML = `<option value="">Zufällig</option>` +
+    CATEGORIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  sel.value = setupCat;
+  sel.onchange = () => { setupCat = sel.value; };
+
+  $("levelPicker").innerHTML = LEVELS.map(l =>
+    `<button class="level ${setupLevel===l.n?"on":""}" data-lvl="${l.n}">
+       <div class="n">${l.n}</div><div class="t">${l.t}</div>
+     </button>`).join("");
+  $("levelPicker").querySelectorAll("[data-lvl]").forEach(b => b.onclick = () => {
+    setupLevel = Number(b.dataset.lvl); renderSetup();
+  });
+
+  $("levelDesc").textContent = LEVELS.find(l => l.n === setupLevel).desc;
+}
+
+$("btnSetupBack").onclick = () => show("screen-home");
+$("btnSendSetup").onclick = () => {
+  if (!setupOpp) return;
+  challenge(setupOpp.uid, { category: setupCat || null, difficulty: setupLevel });
+};
+
+function configLabel(cfg){
+  if (!cfg) return "";
+  const lvl = LEVELS.find(l => l.n === cfg.difficulty);
+  const catTxt = cfg.category ? cfg.category : "Zufällige Kategorie";
+  return `${catTxt} · Stufe ${cfg.difficulty} ${lvl ? lvl.t : ""}`.trim();
+}
+
+async function challenge(oppUid, config = null){
+  if (profile.activeGameId){ toast("Du bist schon in einer Runde."); return; }
+  const opp = await getUser(oppUid);
+  if (!opp){ toast("Spieler nicht gefunden."); return; }
+
+  const gameRef = doc(collection(db,"games"));
+  try {
+    await setDoc(gameRef, {
+      players: [me.uid, oppUid],
+      challenger: me.uid,
+      opponent: oppUid,
+      names: {
+        [me.uid]: { username: profile.username, photo: profile.photo || "", badge: profile.badge || "", frame: profile.frame || "" },
+        [oppUid]: { username: opp.username,     photo: opp.photo || "",     badge: opp.badge || "",     frame: opp.frame || "" }
+      },
+      status: "pending",
+      config: config || null,
+      createdAt: serverTimestamp()
+    });
+    await setDoc(doc(db,"users",oppUid,"invites",gameRef.id), {
+      gameId: gameRef.id, from: me.uid,
+      fromName: profile.username, fromPhoto: profile.photo || "",
+      fromBadge: profile.badge || "", fromFrame: profile.frame || "",
+      configLabel: configLabel(config),
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(userRef(me.uid), { activeGameId: gameRef.id });
+    $("waitText").textContent = `Warte auf ${opp.username} …`;
+    show("screen-waiting");
+    watchGame(gameRef.id);
+  } catch(e){ toast("Duell konnte nicht gestartet werden: " + (e.code||e.message)); }
+}
+
+$("btnCancelChallenge").onclick = async () => {
+  if (!currentGameId) return;
+  const gid = currentGameId, opp = currentGame?.opponent;
+  try {
+    await updateDoc(doc(db,"games",gid), { status:"cancelled" });
+    if (opp) await deleteDoc(doc(db,"users",opp,"invites",gid));
+  } catch(_){}
+  await leaveGame();
+};
+
+async function acceptChallenge(gid, btn){
+  if (btn){ btn.disabled = true; btn.textContent = "Startet …"; }
+  try {
+    const gSnap = await getDoc(doc(db,"games",gid));
+    if (!gSnap.exists() || gSnap.data().status !== "pending"){
+      toast("Diese Herausforderung ist nicht mehr aktiv.");
+      await deleteDoc(doc(db,"users",me.uid,"invites",gid)).catch(()=>{});
+      return;
+    }
+    const g = gSnap.data();
+    const avoid = await collectRecentWords(g.challenger, g.opponent);
+    const words = await fetchWordPair(avoid, g.config);
+    const starter = Math.random() < 0.5 ? g.challenger : g.opponent;
+
+    await setDoc(doc(db,"games",gid,"secrets",g.challenger), { word: words.wordA });
+    await setDoc(doc(db,"games",gid,"secrets",g.opponent),   { word: words.wordB });
+    await setDoc(doc(db,"games",gid,"secrets","verdict"), { same: words.same });
+    await setDoc(doc(db,"games",gid,"secrets","result"), {
+      same: words.same,
+      words: { [g.challenger]: words.wordA, [g.opponent]: words.wordB }
+    });
+    await updateDoc(doc(db,"games",gid), { status:"active", starter, startedAt: serverTimestamp() });
+    await updateDoc(userRef(me.uid), { activeGameId: gid });
+    await deleteDoc(doc(db,"users",me.uid,"invites",gid));
+    watchGame(gid);
+  } catch(e){
+    toast("Start fehlgeschlagen: " + (e.code || e.message));
+    if (btn){ btn.disabled = false; btn.textContent = "Annehmen"; }
+  }
+}
+
+async function declineChallenge(gid){
+  try {
+    await updateDoc(doc(db,"games",gid), { status:"declined" });
+    await deleteDoc(doc(db,"users",me.uid,"invites",gid));
+  } catch(e){ toast("Fehler: " + (e.code||e.message)); }
+}
+
+/* ---------- Wörter von der Anthropic-API ---------- */
+const FALLBACK_PAIRS = [
+  ["Kaffee","Tee"],["Löwe","Tiger"],["Fahrrad","Motorrad"],["Sommer","Frühling"],
+  ["Mond","Stern"],["Gitarre","Geige"],["Pizza","Lasagne"],["Schnee","Regen"],
+  ["Berg","Hügel"],["Buch","Zeitung"],["Hund","Wolf"],["Apfel","Birne"],
+  ["Zug","Bus"],["Uhr","Kalender"],["Meer","See"],["Kino","Theater"],
+  ["Bier","Wein"],["Schuhe","Socken"],["Küche","Badezimmer"],["Lehrer","Professor"],
+  ["Fußball","Handball"],["Wüste","Strand"],["Katze","Luchs"],["Brille","Kontaktlinse"],
+  ["Feuer","Kerze"],["Ritter","Soldat"],["Klavier","Orgel"],["Salat","Suppe"],
+  ["Schloss","Burg"],["Regenschirm","Mantel"],["Roboter","Computer"],["Insel","Halbinsel"],
+  ["Flugzeug","Hubschrauber"],["Nebel","Wolke"],["Schokolade","Karamell"],["Museum","Bibliothek"],
+  ["Zahnarzt","Friseur"],["Gewitter","Sturm"],["Pilz","Moos"],["Kompass","Landkarte"]
+];
+
+/* ---------- Wortgedächtnis ----------
+   Jeder Spieler merkt sich seine zuletzt gesehenen Wörter im eigenen Profil.
+   Beim Start einer Runde werden beide Listen zusammengeworfen und als
+   Sperrliste an die Wortgenerierung übergeben. */
+const RECENT_LIMIT = 50;
+
+async function collectRecentWords(uidA, uidB){
+  const out = new Set();
+  for (const uid of [uidA, uidB]){
+    try {
+      const s = await getDoc(userRef(uid));
+      (s.exists() ? (s.data().recentWords || []) : []).forEach(w => out.add(w));
+    } catch(_){}
+  }
+  return [...out].slice(-80);
+}
+
+async function rememberWord(gid, word){
+  if (!word) return;
+  const key = "imposter_word_" + gid;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, "1");
+  const list = (profile?.recentWords || []).filter(w => w.toLowerCase() !== word.toLowerCase());
+  list.push(word);
+  try { await updateDoc(userRef(me.uid), { recentWords: list.slice(-RECENT_LIMIT) }); } catch(_){}
+}
+
+async function fetchWordPair(avoid = [], config = null){
+  const blocked = new Set(avoid.map(w => String(w).toLowerCase()));
+  const category = config?.category || null;
+  try {
+    const r = await fetch(WORDS_ENDPOINT, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ avoid, category, difficulty: config?.difficulty ?? 2 })
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const d = await r.json();
+    if (!d.wordA || !d.wordB) throw new Error("leer");
+    return { wordA: d.wordA, wordB: d.wordB, same: !!d.same };
+  } catch(_){
+    // Notfallliste: bevorzugt Paare, in denen kein gesperrtes Wort vorkommt.
+    const fresh = FALLBACK_PAIRS.filter(([a,b]) => !blocked.has(a.toLowerCase()) && !blocked.has(b.toLowerCase()));
+    const pool = fresh.length ? fresh : FALLBACK_PAIRS;
+    const [a,b] = pool[Math.floor(Math.random()*pool.length)];
+    const same = Math.random() < 0.5;
+    return { wordA: a, wordB: same ? a : b, same };
+  }
+}
+
+/* ---------- Worttipp von der Anthropic-API prüfen ---------- */
+function normalize(s){
+  return String(s||"").toLowerCase().trim()
+    .replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ß/g,"ss")
+    .replace(/[^a-z0-9]/g,"");
+}
+async function checkWordGuess(guess, word){
+  try {
+    const r = await fetch(CHECK_ENDPOINT, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ guess, word })
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const d = await r.json();
+    if (typeof d.ok !== "boolean") throw new Error("leer");
+    return { ok: d.ok, reason: d.reason || "" };
+  } catch(_){
+    const a = normalize(guess), b = normalize(word);
+    const ok = !!a && (a === b || (a.length > 3 && (b.startsWith(a) || a.startsWith(b))));
+    return { ok, reason: ok ? "Wörtlich getroffen." : "Stimmt nicht mit dem gesuchten Wort überein." };
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   8) Spielverlauf
+   ══════════════════════════════════════════════════════════════ */
+function watchGame(gid){
+  if (unsubGame) unsubGame();
+  currentGameId = gid;
+  myWord = verdictCache = resultCache = null;
+  sideEffectGuard = "";
+
+  unsubGame = onSnapshot(
+    doc(db,"games",gid),
+    { includeMetadataChanges: true },
+    async snap => {
+      if (!snap.exists()){ await leaveGame(); return; }
+      // Eigene, noch nicht vom Server bestätigte Änderung: warten.
+      // Sonst greifen die Sicherheitsregeln beim Nachladen der Geheimnisse noch nicht.
+      if (snap.metadata.hasPendingWrites) return;
+
+      currentGame = snap.data();
+      const s = currentGame.status;
+
+      if (s === "pending"){
+        if (currentGame.challenger === me.uid){
+          $("waitText").textContent = `Warte auf ${nameOf(currentGame.opponent)} …`;
+          show("screen-waiting");
+        }
+        return;
+      }
+      if (s === "declined"){  toast("Die Herausforderung wurde abgelehnt.");     await leaveGame(); return; }
+      if (s === "cancelled"){ toast("Die Herausforderung wurde zurückgezogen."); await leaveGame(); return; }
+      if (s === "active")   { await enterGame(gid);     return; }
+      if (s === "guessing") { await enterGuessing(gid); return; }
+      if (s === "checking") { await enterChecking(gid); return; }
+      if (s === "finished") { await showResult(gid);    return; }
+    }
+  );
+}
+
+function nameOf(uid){ return currentGame?.names?.[uid]?.username ?? "dein Gegner"; }
+function oppUid(){ return currentGame.players.find(p => p !== me.uid); }
+function once(key){
+  if (sideEffectGuard === key) return false;
+  sideEffectGuard = key;
+  return true;
+}
+
+async function enterGame(gid){
+  const opp = oppUid();
+  $("gMeBox").innerHTML  = avaHTML(currentGame.names?.[me.uid]);
+  $("gOppBox").innerHTML = avaHTML(currentGame.names?.[opp]);
+  $("starterWho").textContent = currentGame.starter === me.uid ? "Du fängst an" : `${nameOf(opp)} fängt an`;
+  const lbl = configLabel(currentGame.config);
+  $("gameConfig").innerHTML = lbl ? `<span class="pill">${esc(lbl)}</span>` : "";
+
+  if (!myWord){
+    const s = await getDocRetry(doc(db,"games",gid,"secrets",me.uid));
+    myWord = s ? s.data().word : "?";
+    $("slipWord").textContent = myWord;
+    if (s) rememberWord(gid, myWord);
+  }
+  sealSlip();
+  $("btnSame").disabled = $("btnImposter").disabled = false;
+  show("screen-game");
+}
+
+/* ---------- Wortkarte: gedrückt halten ---------- */
+const slip = $("slip");
+const openSlip = () => slip.classList.add("open");
+const sealSlip = () => slip.classList.remove("open");
+slip.addEventListener("pointerdown", e => { e.preventDefault(); openSlip(); });
+["pointerup","pointerleave","pointercancel"].forEach(ev => slip.addEventListener(ev, sealSlip));
+slip.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter"){ e.preventDefault(); openSlip(); } });
+slip.addEventListener("keyup",   e => { if (e.key === " " || e.key === "Enter") sealSlip(); });
+slip.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ---------- Tipp abgeben ---------- */
+async function submitGuess(value){
+  if (!currentGameId || currentGame?.status !== "active") return;
+  $("btnSame").disabled = $("btnImposter").disabled = true;
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      // Bei "Imposter" folgt eventuell noch die Rate-Phase.
+      status: value === "imposter" ? "guessing" : "finished",
+      guess: { by: me.uid, value },
+      guessedAt: serverTimestamp()
+    });
+  } catch(e){
+    toast("Der Gegner war schneller.");
+    $("btnSame").disabled = $("btnImposter").disabled = false;
+  }
+}
+$("btnSame").onclick     = () => submitGuess("same");
+$("btnImposter").onclick = () => submitGuess("imposter");
+
+/* ---------- Phase: Wort raten ---------- */
+async function enterGuessing(gid){
+  const iGuessed = currentGame.guess?.by === me.uid;
+
+  if (!verdictCache){
+    const v = await getDocRetry(doc(db,"games",gid,"secrets","verdict"));
+    if (!v) return;
+    verdictCache = v.data();
+  }
+
+  // Imposter-Tipp war falsch: die Wörter waren gleich. Keine Rate-Runde.
+  if (verdictCache.same === true){
+    if (iGuessed && once("autofinish:" + gid)){
+      try { await updateDoc(doc(db,"games",gid), { status:"finished", finishedAt: serverTimestamp() }); }
+      catch(_){}
+    }
+    return; // der finished-Snapshot übernimmt gleich
+  }
+
+  if (iGuessed){
+    $("wordGuessInput").value = "";
+    $("btnSubmitWordGuess").disabled = false;
+    $("btnSubmitWordGuess").textContent = "Tipp abgeben";
+    show("screen-guessing");
+  } else {
+    $("wgTitle").textContent = `${nameOf(oppUid())} rät dein Wort`;
+    $("wgText").textContent  = "Der Imposter-Tipp war richtig — jetzt versucht er noch, dein Wort zu erraten.";
+    show("screen-waitguess");
+  }
+}
+
+async function sendWordGuess(text){
+  if (!currentGameId) return;
+  $("btnSubmitWordGuess").disabled = true;
+  $("btnSubmitWordGuess").textContent = "Wird geprüft …";
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      status: "checking",
+      wordGuess: { text: text || "" }
+    });
+  } catch(e){
+    toast("Fehler: " + (e.code || e.message));
+    $("btnSubmitWordGuess").disabled = false;
+    $("btnSubmitWordGuess").textContent = "Tipp abgeben";
+  }
+}
+$("btnSubmitWordGuess").onclick = () => {
+  const t = $("wordGuessInput").value.trim();
+  if (!t){ toast("Schreib ein Wort — oder überspringe."); return; }
+  sendWordGuess(t);
+};
+$("btnSkipWordGuess").onclick = () => sendWordGuess("");
+$("wordGuessInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") $("btnSubmitWordGuess").click();
+});
+
+/* ---------- Phase: Worttipp prüfen ---------- */
+async function enterChecking(gid){
+  const iGuessed = currentGame.guess?.by === me.uid;
+
+  if (!iGuessed){
+    $("wgTitle").textContent = "Tipp wird geprüft";
+    $("wgText").textContent  = `${nameOf(oppUid())} hat geraten. Gleich siehst du das Ergebnis.`;
+    show("screen-waitguess");
+    return;
+  }
+
+  if (!once("check:" + gid)) return;
+
+  const text = currentGame.wordGuess?.text || "";
+  let ok = false, reason = "Kein Tipp abgegeben.";
+
+  if (text){
+    // Der Tipp steht bereits unveränderlich im Dokument — jetzt darf das Wort gelesen werden.
+    const r = await getDocRetry(doc(db,"games",gid,"secrets","result"));
+    const opponentWord = r ? r.data().words?.[oppUid()] : null;
+    if (opponentWord){
+      const res = await checkWordGuess(text, opponentWord);
+      ok = res.ok; reason = res.reason;
+    } else {
+      reason = "Das Wort konnte nicht geladen werden.";
+    }
+  }
+
+  try {
+    await updateDoc(doc(db,"games",gid), {
+      status: "finished",
+      wordGuess: { text, ok, reason },
+      finishedAt: serverTimestamp()
+    });
+  } catch(e){ toast("Fehler beim Abschluss: " + (e.code || e.message)); }
+}
+
+$("btnForceEnd").onclick = async () => {
+  if (!currentGameId) return;
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      status: "finished",
+      wordGuess: { text: currentGame?.wordGuess?.text || "", ok: false, reason: "Runde vorzeitig beendet." },
+      finishedAt: serverTimestamp()
+    });
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+};
+
+/* ---------- Sieg-Animation ---------- */
+const FX_COLORS = ["#FFC93C","#E23E6B","#F4EFE4","#5BD6A4","#FFE08A"];
+let fxRunning = false;
+
+function celebrate(points){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const burst = $("pointsBurst");
+  burst.textContent = "+" + points;
+  burst.classList.remove("go");
+  void burst.offsetWidth;              // Reflow, damit die Animation neu startet
+  burst.classList.add("go");
+
+  const v = $("verdict");
+  v.classList.remove("pop");
+  void v.offsetWidth;
+  v.classList.add("pop");
+
+  const cv = $("fx");
+  const ctx = cv.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = window.innerWidth, H = window.innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cv.classList.add("on");
+
+  // Ursprung: Mitte der Ergebniskarte
+  const box = v.getBoundingClientRect();
+  const ox = box.left + box.width/2;
+  const oy = box.top + box.height/2;
+
+  const count = 70 + points * 40;
+  const bits = [];
+  for (let i = 0; i < count; i++){
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 5 + Math.random() * (9 + points * 2);
+    bits.push({
+      x: ox, y: oy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 4,
+      w: 5 + Math.random() * 7,
+      h: 8 + Math.random() * 11,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - .5) * .3,
+      color: FX_COLORS[(Math.random() * FX_COLORS.length) | 0],
+      wobble: Math.random() * Math.PI * 2,
+      life: 1
+    });
+  }
+
+  // Zusätzlich eine Druckwelle
+  const rings = [{ r: 10, a: .55 }];
+  if (points > 1) rings.push({ r: -40, a: .4 });
+
+  const t0 = performance.now();
+  fxRunning = true;
+
+  function frame(now){
+    const t = now - t0;
+    ctx.clearRect(0,0,W,H);
+
+    rings.forEach(ring => {
+      const r = ring.r + t * 0.55;
+      if (r > 0 && r < Math.max(W,H)){
+        ctx.beginPath();
+        ctx.arc(ox, oy, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(255,201,60,${Math.max(0, ring.a * (1 - r / (Math.max(W,H)*0.8)))})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+    });
+
+    let alive = 0;
+    for (const b of bits){
+      b.vy += 0.38;                     // Schwerkraft
+      b.vx *= 0.992;
+      b.wobble += 0.14;
+      b.x += b.vx + Math.sin(b.wobble) * 0.9;
+      b.y += b.vy;
+      b.rot += b.vr;
+      if (t > 1200) b.life -= 0.012;
+      if (b.y > H + 40 || b.life <= 0) continue;
+      alive++;
+
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.globalAlpha = Math.max(0, b.life);
+      ctx.fillStyle = b.color;
+      // gefaltetes Papierschnipsel: die Breite pulsiert
+      ctx.fillRect(-b.w/2, -b.h/2, b.w * Math.abs(Math.cos(b.wobble * .6)), b.h);
+      ctx.restore();
+    }
+
+    if (alive > 0 && t < 5000){ requestAnimationFrame(frame); }
+    else { ctx.clearRect(0,0,W,H); cv.classList.remove("on"); fxRunning = false; }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Ergebnis ---------- */
+async function showResult(gid){
+  if (!resultCache){
+    const s = await getDocRetry(doc(db,"games",gid,"secrets","result"));
+    if (!s) return;
+    resultCache = s.data();
+  }
+  const g = currentGame;
+  const opp = oppUid();
+  const value = g.guess?.value;
+  const iGuessed = g.guess?.by === me.uid;
+  const correct = (value === "same") === !!resultCache.same;
+  const wg = g.wordGuess || null;
+  const bonus = !!(wg && wg.ok);
+
+  await recordStats(gid, iGuessed, correct, bonus);
+
+  const v = $("verdict");
+  v.classList.remove("win","lose");
+  v.classList.add(correct ? "win" : "lose");
+  $("verdictEyebrow").textContent = iGuessed ? "Dein Tipp" : `Tipp von ${nameOf(opp)}`;
+  $("verdictBig").textContent = correct ? "Richtig!" : "Daneben.";
+
+  const guessLabel = value === "same" ? "„Gleiches Wort“" : "„Imposter“";
+  const truth = resultCache.same ? "Ihr hattet tatsächlich dasselbe Wort." : "Ihr hattet unterschiedliche Wörter.";
+  const points = (correct ? 1 : 0) + (bonus ? 1 : 0);
+  const goldTxt = points === 0 ? "" : points === 1 ? " +5 Gold." : " +10 Gold.";
+  const pts = points === 0 ? "Kein Punkt." : points === 1 ? "Ein Punkt." : "Zwei Punkte.";
+  $("verdictText").textContent = iGuessed
+    ? `Du hast auf ${guessLabel} getippt. ${truth} ${pts}${goldTxt}`
+    : `${nameOf(opp)} hat auf ${guessLabel} getippt. ${truth} ${points ? pts + " für ihn." : "Kein Punkt für ihn."}`;
+
+  // Worttipp
+  const card = $("wordGuessCard");
+  if (wg && wg.text){
+    card.classList.remove("hidden");
+    const who = iGuessed ? "Dein Tipp" : `${nameOf(opp)} tippte`;
+    $("wordGuessText").textContent =
+      `${who}: „${wg.text}“ — ${wg.ok ? "gilt. Extrapunkt." : "gilt nicht."}${wg.reason ? " " + wg.reason : ""}`;
+  } else {
+    card.classList.add("hidden");
+  }
+
+  $("wpMeName").textContent  = "Du";
+  $("wpOppName").textContent = nameOf(opp);
+  $("wpMeWord").textContent  = resultCache.words?.[me.uid] ?? "—";
+  $("wpOppWord").textContent = resultCache.words?.[opp]   ?? "—";
+  $("pairNote").textContent  = resultCache.same
+    ? "Gleiche Wörter — hier war nichts zu holen außer Vertrauen."
+    : "Zwei verwandte Wörter — der Unterschied war der ganze Trick.";
+
+  show("screen-result");
+
+  // Nur wenn ich selbst richtig lag, wird gefeiert.
+  if (iGuessed && correct && !fxRunning){
+    setTimeout(() => celebrate(1 + (bonus ? 1 : 0)), 140);
+  }
+}
+
+async function recordStats(gid, iGuessed, correct, bonus){
+  const key = "imposter_rec_" + gid;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, "1");
+  const patch = { "stats.games": increment(1) };
+  if (iGuessed){
+    const pts = (correct ? 1 : 0) + (bonus ? 1 : 0);
+    if (pts){
+      patch["stats.points"] = increment(pts);
+      patch["gold"] = increment(pts === 2 ? 10 : 5);   // 1 Punkt = 5 Gold, 2 Punkte = 10
+    }
+    if (!correct) patch["stats.wrong"] = increment(1);
+  }
+  try { await updateDoc(userRef(me.uid), patch); } catch(_){}
+}
+
+$("btnBackHome").onclick = () => leaveGame();
+
+async function leaveGame(){
+  if (unsubGame){ unsubGame(); unsubGame = null; }
+  currentGameId = currentGame = myWord = verdictCache = resultCache = null;
+  sideEffectGuard = "";
+  try { await updateDoc(userRef(me.uid), { activeGameId: null }); } catch(_){}
+  userCache.clear();
+  show("screen-home");
+  if (profile) loadFriends();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   9) Statistiken
+   ══════════════════════════════════════════════════════════════ */
+$("btnStats").onclick = async () => { await renderLeaderboard(); show("screen-stats"); };
+$("btnStatsBack").onclick = () => show("screen-home");
+
+function renderStats(){
+  const s = profile.stats || { games:0, points:0, wrong:0 };
+  $("stAvaBox").innerHTML = avaHTML(meLook());
+  $("stName").textContent = profile.username;
+  $("stGames").textContent  = s.games || 0;
+  $("stPoints").textContent = s.points || 0;
+  $("stWrong").textContent  = s.wrong  || 0;
+  const tips = (s.points||0) + (s.wrong||0);
+  $("stRate").textContent = tips ? `Trefferquote ${Math.round((s.points/tips)*100)} %` : "Noch kein Tipp abgegeben";
+}
+
+async function renderLeaderboard(){
+  const ids = [me.uid, ...(profile.friends || [])];
+  const users = (await Promise.all(ids.map(getUser))).filter(Boolean);
+  users.sort((a,b) => (b.stats?.points ?? 0) - (a.stats?.points ?? 0));
+  $("leaderboard").innerHTML = users.map((u,i) => `
+    <div class="row-item">
+      <span class="sub" style="width:22px;font-family:var(--mono);color:var(--muted)">${i+1}</span>
+      ${avaHTML(u)}
+      <div class="grow">
+        <div class="name">${esc(u.username)}${u.uid===me.uid?" · du":""}</div>
+        <div class="sub">${u.stats?.games ?? 0} Runden</div>
+      </div>
+      <div style="font-family:var(--display);font-weight:800;font-size:1.3rem;color:var(--yellow)">${u.stats?.points ?? 0}</div>
+    </div>`).join("") || `<div class="empty">Noch keine Daten.</div>`;
+}
+</script>
+</body>
+</html>
