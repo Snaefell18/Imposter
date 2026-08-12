@@ -150,14 +150,16 @@
   }
   #toast.on{transform:translate(-50%,0)}
 
-  /* ---------- Chips für Kategorien / Schwierigkeit ---------- */
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .chip{
-    font-family:var(--body);font-size:.88rem;font-weight:500;
-    padding:9px 13px;border-radius:999px;border:1px solid var(--line);
-    background:var(--ink);color:var(--paper);opacity:.62
+  /* ---------- Auswahl für Kategorie / Schwierigkeit ---------- */
+  select{
+    width:100%;padding:14px 44px 14px 15px;border-radius:13px;border:1px solid var(--line);
+    background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1rem;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238CB0AA' stroke-width='2.5' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:18px
   }
-  .chip.on{background:var(--yellow);color:#2A1D00;border-color:var(--yellow);opacity:1;font-weight:700}
+  select:focus{outline:2px solid var(--yellow);outline-offset:1px}
+  select option{background:var(--ink-2);color:var(--paper)}
   .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
   .level{
     border:1px solid var(--line);background:var(--ink);border-radius:13px;
@@ -298,12 +300,9 @@
     </div>
 
     <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <h3>Kategorien</h3>
-        <button class="link" id="btnCatAll" style="padding:0">Alle</button>
-      </div>
-      <p class="dim" style="font-size:.82rem;margin:4px 0 0">Aus den gewählten wird pro Runde eine ausgelost.</p>
-      <div class="chips" id="catChips"></div>
+      <label for="catSelect">Kategorie</label>
+      <select id="catSelect"></select>
+      <p class="dim" style="font-size:.82rem;margin-top:8px">Bei „Zufällig“ wird pro Runde eine Kategorie ausgelost.</p>
     </div>
 
     <div class="card">
@@ -748,7 +747,7 @@ const LEVELS = [
 ];
 
 let setupOpp = null;
-let setupCats = new Set();
+let setupCat = "";        // leer = zufällig
 let setupLevel = 2;
 
 function openSetup(uid){
@@ -758,21 +757,17 @@ function openSetup(uid){
     setupOpp = u;
     $("setupAva").src = u.photo || AVA_FALLBACK;
     $("setupName").textContent = u.username;
-    if (!setupCats.size) CATEGORIES.forEach(c => setupCats.add(c));
     renderSetup();
     show("screen-setup");
   });
 }
 
 function renderSetup(){
-  $("catChips").innerHTML = CATEGORIES.map(c =>
-    `<button class="chip ${setupCats.has(c)?"on":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
-  $("catChips").querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
-    const c = b.dataset.cat;
-    setupCats.has(c) ? setupCats.delete(c) : setupCats.add(c);
-    if (!setupCats.size) setupCats.add(c);   // mindestens eine muss bleiben
-    renderSetup();
-  });
+  const sel = $("catSelect");
+  sel.innerHTML = `<option value="">Zufällig</option>` +
+    CATEGORIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  sel.value = setupCat;
+  sel.onchange = () => { setupCat = sel.value; };
 
   $("levelPicker").innerHTML = LEVELS.map(l =>
     `<button class="level ${setupLevel===l.n?"on":""}" data-lvl="${l.n}">
@@ -785,24 +780,16 @@ function renderSetup(){
   $("levelDesc").textContent = LEVELS.find(l => l.n === setupLevel).desc;
 }
 
-$("btnCatAll").onclick = () => {
-  if (setupCats.size === CATEGORIES.length) { setupCats = new Set([CATEGORIES[0]]); }
-  else { setupCats = new Set(CATEGORIES); }
-  renderSetup();
-};
 $("btnSetupBack").onclick = () => show("screen-home");
 $("btnSendSetup").onclick = () => {
   if (!setupOpp) return;
-  challenge(setupOpp.uid, { categories: [...setupCats], difficulty: setupLevel });
+  challenge(setupOpp.uid, { category: setupCat || null, difficulty: setupLevel });
 };
 
 function configLabel(cfg){
   if (!cfg) return "";
   const lvl = LEVELS.find(l => l.n === cfg.difficulty);
-  const cats = cfg.categories || [];
-  const catTxt = cats.length >= CATEGORIES.length ? "Alle Kategorien"
-               : cats.length > 3 ? `${cats.length} Kategorien`
-               : cats.join(" · ");
+  const catTxt = cfg.category ? cfg.category : "Zufällige Kategorie";
   return `${catTxt} · Stufe ${cfg.difficulty} ${lvl ? lvl.t : ""}`.trim();
 }
 
@@ -929,8 +916,7 @@ async function rememberWord(gid, word){
 
 async function fetchWordPair(avoid = [], config = null){
   const blocked = new Set(avoid.map(w => String(w).toLowerCase()));
-  const cats = config?.categories?.length ? config.categories : null;
-  const category = cats ? cats[Math.floor(Math.random()*cats.length)] : null;
+  const category = config?.category || null;
   try {
     const r = await fetch(WORDS_ENDPOINT, {
       method:"POST", headers:{"content-type":"application/json"},
