@@ -201,7 +201,7 @@
     display:grid;place-items:center
   }
   .iconbtn:hover{color:var(--paper);border-color:var(--muted)}
-  .iconbtn.sm{width:36px;height:36px}
+  .iconbtn.box{width:auto;height:auto;padding:10px 12px;border-radius:11px}
   .record{font-family:var(--mono);font-size:.8rem;letter-spacing:.02em}
   .record .w{color:var(--ok)}
   .record .d{color:var(--muted)}
@@ -410,7 +410,8 @@
     <div class="card stack">
       <div class="step-n">1</div>
       <h3>Herausfordern</h3>
-      <p>Such dir einen Freund aus der Liste. <strong>Schnell</strong> startet sofort, <strong>Erweitert</strong> lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
+      <p>Such dir einen Freund aus der Liste. <strong>Game</strong> startet sofort, das <strong>Zahnrad</strong> daneben lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
+      <p style="font-size:.92rem">Die drei Zahlen unter jedem Namen sind die Bilanz: gewonnene Runden, Runden ohne eigenen Tipp, verlorene Runden.</p>
     </div>
 
     <div class="card">
@@ -469,6 +470,12 @@
       <label>Aussehen</label>
       <p class="dim" style="font-size:.85rem;margin:0 0 12px">Rahmen und Symbol für dein Profilbild wählst du im Inventar.</p>
       <button class="btn ghost" id="btnInventory">Inventar öffnen</button>
+    </div>
+
+    <div class="card">
+      <label>Bilanz</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Setzt Siege, neutrale Runden und Niederlagen auf null. Punkte und Gold bleiben erhalten.</p>
+      <button class="btn ghost" id="btnResetRecord">Bilanz zurücksetzen</button>
     </div>
 
     <div class="stack">
@@ -883,7 +890,7 @@ $("obSave").onclick = async () => {
         owned: [],
         badge: "",
         frame: "",
-        stats: { games: 0, points: 0, wins: 0, wrong: 0 },
+        stats: { games: 0, points: 0, wins: 0, draws: 0, wrong: 0 },
         createdAt: serverTimestamp()
       }, { merge: true });
     });
@@ -961,9 +968,9 @@ function avaHTML(u, cls = ""){
 /* Bilanz: Siege / neutrale Runden / Niederlagen */
 function recordHTML(u){
   const st = u?.stats || {};
-  const wins   = st.wins ?? 0;
+  const wins   = st.wins  ?? 0;
+  const draws  = st.draws ?? 0;
   const losses = st.wrong ?? 0;
-  const draws  = Math.max(0, (st.games ?? 0) - wins - losses);
   return `<div class="record"><span class="w">${wins}</span><span class="sep">/</span>`
        + `<span class="d">${draws}</span><span class="sep">/</span>`
        + `<span class="l">${losses}</span></div>`;
@@ -1087,6 +1094,23 @@ $("btnOptions").onclick = () => {
   show("screen-options");
 };
 $("btnOptionsBack").onclick = () => show("screen-home");
+$("btnResetRecord").onclick = async () => {
+  const btn = $("btnResetRecord");
+  if (btn.dataset.armed !== "1"){
+    btn.dataset.armed = "1";
+    btn.textContent = "Wirklich zurücksetzen?";
+    setTimeout(() => { btn.dataset.armed = ""; btn.textContent = "Bilanz zurücksetzen"; }, 5000);
+    return;
+  }
+  btn.dataset.armed = ""; btn.textContent = "Bilanz zurücksetzen";
+  try {
+    await updateDoc(userRef(me.uid), {
+      "stats.wins": 0, "stats.draws": 0, "stats.wrong": 0, "stats.games": 0
+    });
+    userCache.delete(me.uid);
+    toast("Bilanz zurückgesetzt.");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+};
 $("optPickPhoto").onclick = () => $("optFile").click();
 $("optFile").onchange = async e => {
   const file = e.target.files?.[0]; if (!file) return;
@@ -1137,7 +1161,7 @@ async function loadFriends(){
         ${recordHTML(u)}
       </div>
       <button class="btn sm yellow" data-challenge="${esc(u.uid)}" ${busy?"disabled":""}>Game</button>
-      <button class="iconbtn sm" data-setup="${esc(u.uid)}" ${busy?"disabled":""} aria-label="Erweitertes Duell" title="Erweitertes Duell">
+      <button class="iconbtn box" data-setup="${esc(u.uid)}" ${busy?"disabled":""} aria-label="Erweitertes Duell" title="Erweitertes Duell">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3.2"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -1781,12 +1805,14 @@ async function recordStats(gid, iGuessed, correct, bonus){
   const patch = { "stats.games": increment(1) };
   if (iGuessed){
     const pts = (correct ? 1 : 0) + (bonus ? 1 : 0);
-    if (correct) patch["stats.wins"] = increment(1);
+    patch[correct ? "stats.wins" : "stats.wrong"] = increment(1);
     if (pts){
       patch["stats.points"] = increment(pts);
       patch["gold"] = increment(pts === 2 ? 10 : 5);   // 1 Punkt = 5 Gold, 2 Punkte = 10
     }
-    if (!correct) patch["stats.wrong"] = increment(1);
+  } else {
+    // Runde, in der der Gegner getippt hat — weder Sieg noch Niederlage
+    patch["stats.draws"] = increment(1);
   }
   try { await updateDoc(userRef(me.uid), patch); } catch(_){}
 }
