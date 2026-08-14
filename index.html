@@ -226,11 +226,10 @@
 
   /* ---------- Modus-Umschalter ---------- */
   .seg{display:flex;gap:6px;background:var(--ink-2);border:1px solid var(--line);
-       border-radius:15px;padding:5px;margin-bottom:8px}
+       border-radius:15px;padding:5px;margin-bottom:18px}
   .seg button{flex:1;padding:11px 8px;border-radius:11px;background:transparent;
               color:var(--muted);font-weight:700;font-size:.92rem}
   .seg button.on{background:var(--yellow);color:#2A1D00}
-  .segnote{font-size:.8rem;color:var(--muted);text-align:center;margin:0 0 18px}
 
   /* ---------- Hinweis-Verlauf ---------- */
   .hintlog{
@@ -476,7 +475,6 @@
       <button data-mode="live">Lokal</button>
       <button data-mode="chat">Online</button>
     </div>
-    <p class="segnote" id="modeNote">—</p>
 
     <div id="invitesCard" class="card hidden" style="border-color:rgba(255,201,60,.45);background:rgba(255,201,60,.07)">
       <div class="eyebrow" style="color:var(--yellow)">Herausforderung</div>
@@ -516,33 +514,39 @@
 
     <div class="card stack">
       <div class="step-n">1</div>
+      <h3>Lokal oder Online</h3>
+      <p>Ganz oben im Menü wählst du den Modus. <strong>Lokal</strong> heißt, ihr sitzt zusammen oder telefoniert und sagt euch die Hinweise laut. <strong>Online</strong> heißt, ihr tippt sie abwechselnd in die App — beide sehen den ganzen Verlauf untereinander, und der Zug wechselt nach jedem Wort.</p>
+      <p>Der gewählte Modus gilt für jede Herausforderung, die du danach verschickst. Dein Gegner sieht ihn schon in der Einladung.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">2</div>
       <h3>Herausfordern</h3>
-      <p>Oben wählst du den Modus: <strong>Lokal</strong> heißt, ihr sitzt zusammen oder telefoniert und sagt euch die Hinweise. <strong>Online</strong> heißt, ihr tippt sie abwechselnd in die App und seht sie beide im Verlauf.</p>
       <p>Such dir einen Freund aus der Liste. <strong>Herausfordern</strong> startet sofort, das <strong>Zahnrad</strong> daneben lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
       <p style="font-size:.92rem">Tippst du auf das Bild eines Freundes, öffnet sich sein Profil mit allen Zahlen — dort kannst du ihn auch wieder entfernen.</p>
       <p style="font-size:.92rem">Die drei Zahlen unter jedem Namen sind <strong>deine</strong> Bilanz gegen genau diesen Gegner: gewonnene Runden, Runden ohne eigenen Tipp, verlorene Runden.</p>
     </div>
 
     <div class="card">
-      <div class="step-n">2</div>
+      <div class="step-n">3</div>
       <h3>Das geheime Wort</h3>
       <p>Jeder bekommt eine Wortkarte, die nur er sieht — gedrückt halten zum Aufdecken, loslassen verdeckt sie wieder. In der Hälfte aller Runden habt ihr <strong>dasselbe</strong> Wort, in der anderen Hälfte zwei verwandte, aber verschiedene. Ihr wisst nicht, welcher Fall gerade gilt.</p>
     </div>
 
     <div class="card">
-      <div class="step-n">3</div>
+      <div class="step-n">4</div>
       <h3>Hinweise geben</h3>
       <p>Die App sagt, wer anfängt. Von da an nennt ihr euch abwechselnd <strong>außerhalb</strong> der App — am Tisch oder per Anruf — je ein einzelnes Hinweiswort zu eurem Wort. Zu deutlich, und du verrätst dich. Zu vage, und du erkennst nichts.</p>
     </div>
 
     <div class="card">
-      <div class="step-n">4</div>
+      <div class="step-n">5</div>
       <h3>Festlegen</h3>
       <p>Sobald jemand sicher ist, drückt er <strong>Gleiches Wort</strong> oder <strong>Imposter</strong>. Der erste Tipp beendet die Runde für beide — es zählt also auch, schnell zu sein.</p>
     </div>
 
     <div class="card">
-      <div class="step-n">5</div>
+      <div class="step-n">6</div>
       <h3>Punkte</h3>
       <p>Ein richtiger Tipp gibt <strong>einen Punkt</strong>. Wer auf Imposter tippt und recht behält, darf zusätzlich raten, welches Wort der andere hatte. Trifft der Tipp, gibt es einen <strong>zweiten Punkt</strong>. Synonyme und Tippfehler werden akzeptiert, bloß thematisch verwandte Wörter nicht.</p>
     </div>
@@ -1697,16 +1701,11 @@ $("btnAddFriend").onclick = async () => {
    ══════════════════════════════════════════════════════════════ */
 const MODE_KEY = "imposter_mode";
 let uiMode = localStorage.getItem(MODE_KEY) === "chat" ? "chat" : "live";
-const MODE_TEXT = {
-  live: "Ihr sitzt zusammen oder telefoniert — die Hinweise sagt ihr euch.",
-  chat: "Die Hinweise tippt ihr abwechselnd in die App."
-};
 const modeOf = g => (g?.mode === "chat" ? "chat" : "live");
 
 function renderMode(){
   $("modeSeg").querySelectorAll("[data-mode]").forEach(b =>
     b.classList.toggle("on", b.dataset.mode === uiMode));
-  $("modeNote").textContent = MODE_TEXT[uiMode];
 }
 $("modeSeg").querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
   uiMode = b.dataset.mode;
