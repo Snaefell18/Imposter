@@ -242,6 +242,26 @@
   .hint.his {align-self:flex-start;background:var(--ink-3);color:var(--paper);border-bottom-left-radius:5px}
   .hint.new{animation:hintIn .36s cubic-bezier(.16,1.25,.3,1) both}
   @keyframes hintIn{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:none}}
+  /* Kompakte Spielansicht im getippten Modus */
+  #screen-game.compact .duel{gap:10px;margin-bottom:10px}
+  #screen-game.compact .duel .ava{width:32px;height:32px}
+  #screen-game.compact .avaBadge{width:15px;height:15px;font-size:8px}
+  #screen-game.compact .configpill{margin-bottom:9px}
+  #screen-game.compact .starter{padding:8px 12px;margin-bottom:11px}
+  #screen-game.compact .starter .who{font-size:1rem}
+  #screen-game.compact #wordEyebrow{display:none}
+  #screen-game.compact #gameHowTo{display:none}
+  #screen-game.compact .slip-hint{display:none}
+  #screen-game.compact .slip{min-height:104px;padding:14px;border-radius:16px;box-shadow:0 12px 26px -18px rgba(0,0,0,.7)}
+  #screen-game.compact .slip-cover{border-radius:16px}
+  #screen-game.compact .slip-word{font-size:clamp(1.5rem,7.5vw,2.15rem)}
+  #screen-game.compact .seal{width:60px;height:60px;font-size:.56rem}
+  #screen-game.compact #hintPanel{margin-top:12px;padding:13px}
+  #screen-game.compact .hintlog{max-height:23vh}
+  #screen-game.compact .stack{margin-top:14px}
+  #screen-game.compact #guessRow{display:flex;gap:10px}
+  #screen-game.compact #guessRow .gap{display:none}
+
   .hintrow{display:flex;gap:8px;margin-top:12px}
   .hintrow input{flex:1}
   .sendbtn{flex:0 0 auto;padding:0 18px;border-radius:13px;background:var(--yellow);color:#2A1D00;font-weight:700}
@@ -453,8 +473,8 @@
     </div>
 
     <div class="seg" id="modeSeg">
-      <button data-mode="live">Single</button>
-      <button data-mode="chat">Multiplayer</button>
+      <button data-mode="live">Lokal</button>
+      <button data-mode="chat">Online</button>
     </div>
     <p class="segnote" id="modeNote">—</p>
 
@@ -497,7 +517,7 @@
     <div class="card stack">
       <div class="step-n">1</div>
       <h3>Herausfordern</h3>
-      <p>Oben wählst du den Modus: <strong>Single</strong> heißt, ihr sitzt zusammen oder telefoniert und sagt euch die Hinweise. <strong>Multiplayer</strong> heißt, ihr tippt sie abwechselnd in die App und seht sie beide im Verlauf.</p>
+      <p>Oben wählst du den Modus: <strong>Lokal</strong> heißt, ihr sitzt zusammen oder telefoniert und sagt euch die Hinweise. <strong>Online</strong> heißt, ihr tippt sie abwechselnd in die App und seht sie beide im Verlauf.</p>
       <p>Such dir einen Freund aus der Liste. <strong>Herausfordern</strong> startet sofort, das <strong>Zahnrad</strong> daneben lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
       <p style="font-size:.92rem">Tippst du auf das Bild eines Freundes, öffnet sich sein Profil mit allen Zahlen — dort kannst du ihn auch wieder entfernen.</p>
       <p style="font-size:.92rem">Die drei Zahlen unter jedem Namen sind <strong>deine</strong> Bilanz gegen genau diesen Gegner: gewonnene Runden, Runden ohne eigenen Tipp, verlorene Runden.</p>
@@ -756,7 +776,7 @@
       <div class="who" id="starterWho">—</div>
     </div>
 
-    <div style="text-align:center;margin-bottom:14px">
+    <div id="wordEyebrow" style="text-align:center;margin-bottom:14px">
       <div class="eyebrow">Dein geheimes Wort</div>
     </div>
 
@@ -779,9 +799,11 @@
 
     <div class="stack">
       <p class="dim" id="gameHowTo" style="text-align:center;margin-bottom:12px">Gebt euch außerhalb der App Hinweise. Wer zuerst tippt, beendet die Runde.</p>
-      <button class="btn yellow" id="btnSame">Gleiches Wort</button>
-      <div style="height:10px"></div>
-      <button class="btn magenta" id="btnImposter">Imposter</button>
+      <div id="guessRow">
+        <button class="btn yellow" id="btnSame">Gleiches Wort</button>
+        <div class="gap" style="height:10px"></div>
+        <button class="btn magenta" id="btnImposter">Imposter</button>
+      </div>
     </div>
   </section>
 
@@ -1677,7 +1699,7 @@ const MODE_KEY = "imposter_mode";
 let uiMode = localStorage.getItem(MODE_KEY) === "chat" ? "chat" : "live";
 const MODE_TEXT = {
   live: "Ihr sitzt zusammen oder telefoniert — die Hinweise sagt ihr euch.",
-  chat: "Getrennt spielen — die Hinweise tippt ihr abwechselnd in die App."
+  chat: "Die Hinweise tippt ihr abwechselnd in die App."
 };
 const modeOf = g => (g?.mode === "chat" ? "chat" : "live");
 
@@ -1839,7 +1861,7 @@ function configLabel(cfg){
   const catTxt = cfg.category ? cfg.category : "Zufällige Kategorie";
   return `${catTxt} · Stufe ${cfg.difficulty} ${lvl ? lvl.t : ""}`.trim();
 }
-function modeLabel(mode){ return mode === "chat" ? "Multiplayer" : "Single"; }
+function modeLabel(mode){ return mode === "chat" ? "Online" : "Lokal"; }
 
 async function challenge(oppUid, config = null){
   if (profile.activeGameId){ toast("Du bist schon in einer Runde."); return; }
@@ -2063,6 +2085,7 @@ async function enterGame(gid){
   $("gMeBox").innerHTML  = avaHTML(currentGame.names?.[me.uid]);
   $("gOppBox").innerHTML = avaHTML(currentGame.names?.[opp]);
   const chat = modeOf(currentGame) === "chat";
+  $("screen-game").classList.toggle("compact", chat);
   const lbl = [modeLabel(currentGame.mode), configLabel(currentGame.config)].filter(Boolean).join(" · ");
   $("gameConfig").innerHTML = `<span class="pill">${esc(lbl)}</span>`;
 
