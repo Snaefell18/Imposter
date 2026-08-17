@@ -1,0 +1,3421 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Imposter</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0C2724">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Imposter">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0C2724;
+    --ink-2:#123734;
+    --ink-3:#1B4642;
+    --line:rgba(244,239,228,.14);
+    --paper:#F4EFE4;
+    --paper-2:#E7DFCD;
+    --muted:#8CB0AA;
+    --yellow:#FFC93C;
+    --magenta:#E23E6B;
+    --ok:#5BD6A4;
+    --r:18px;
+    --display:"Bricolage Grotesque", system-ui, sans-serif;
+    --body:"DM Sans", system-ui, sans-serif;
+    --mono:"DM Mono", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{height:100%}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, #16413C 0%, transparent 60%),
+      var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    -webkit-font-smoothing:antialiased;
+    min-height:100svh;
+    min-height:100dvh;
+    overscroll-behavior-y:none;
+  }
+  .wrap{
+    max-width:520px;margin:0 auto;
+    padding-left:18px;padding-right:18px;
+    /* Notch oben und Home-Indikator unten freihalten */
+    padding-top:calc(22px + env(safe-area-inset-top));
+    padding-bottom:calc(40px + env(safe-area-inset-bottom));
+  }
+  .screen{display:none;animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  .screen.on{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* ---------- type ---------- */
+  h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.02}
+  h1{font-size:2.55rem;font-weight:800}
+  h2{font-size:1.5rem;font-weight:700}
+  h3{font-size:1.05rem;font-weight:700}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  p{line-height:1.55;color:#CFE0DC;margin:.5rem 0}
+  .dim{color:var(--muted);font-size:.9rem}
+
+  /* ---------- surfaces ---------- */
+  .card{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .card + .card{margin-top:12px}
+  .stack{margin-top:22px}
+
+  /* ---------- buttons ---------- */
+  button{font-family:var(--body);font-size:1rem;cursor:pointer;border:0;transition:transform .12s ease, filter .15s ease}
+  button:active{transform:scale(.975)}
+  button:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 18px;border-radius:14px;font-weight:700;background:var(--paper);color:var(--ink)}
+  .btn.ghost{background:transparent;color:var(--paper);border:1px solid var(--line)}
+  .btn.yellow{background:var(--yellow);color:#2A1D00}
+  .btn.magenta{background:var(--magenta);color:#fff}
+  .btn:disabled{opacity:.42;cursor:not-allowed}
+  .btn.sm{width:auto;padding:10px 14px;font-size:.9rem;border-radius:11px}
+
+  /* ---------- inputs ---------- */
+  input[type=text]{
+    width:100%;padding:14px 15px;border-radius:13px;border:1px solid var(--line);
+    background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1rem
+  }
+  input[type=text]:focus{outline:2px solid var(--yellow);outline-offset:1px}
+  label{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .row{display:flex;gap:10px;align-items:center}
+
+  /* ---------- avatar ---------- */
+  .ava{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--ink-3);flex:0 0 auto;border:1px solid var(--line)}
+  .ava.lg{width:96px;height:96px}
+  .ava.xl{width:64px;height:64px}
+
+  /* ---------- list rows ---------- */
+  .row-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  .row-item:first-child{border-top:0}
+  .row-item .name{font-weight:700;font-size:1rem}
+  .row-item .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+  .grow{flex:1;min-width:0}
+  .name,.sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ---------- the word card ---------- */
+  .slip{
+    position:relative;overflow:hidden;border-radius:20px;
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(12,39,36,.045) 0 1px, transparent 1px 4px);
+    color:var(--ink);
+    min-height:190px;display:grid;place-items:center;text-align:center;padding:26px;
+    box-shadow:0 18px 40px -20px rgba(0,0,0,.7);
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  }
+  .slip-word{font-family:var(--display);font-weight:800;font-size:clamp(2rem,11vw,3.2rem);letter-spacing:-.03em;line-height:1.05;word-break:break-word}
+  .slip-word.leer{color:var(--magenta);font-size:clamp(1.5rem,8vw,2.3rem)}
+  .slip-word.leer small{display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;
+                        text-transform:uppercase;color:var(--muted);font-weight:400;margin-top:10px}
+  .slip-cover{
+    position:absolute;inset:0;display:grid;place-items:center;gap:10px;
+    background:linear-gradient(170deg,#1B4642,#0C2724);
+    border-radius:20px;transition:transform .34s cubic-bezier(.6,.05,.2,1);
+  }
+  .slip.open .slip-cover{transform:translateY(-101%)}
+  .seal{
+    width:88px;height:88px;border-radius:50%;background:var(--yellow);color:#2A1D00;
+    display:grid;place-items:center;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;text-align:center;line-height:1.3;padding:8px
+  }
+  .slip-hint{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+  .duel{display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 14px}
+  .duel .vs{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;color:var(--muted)}
+
+  .starter{
+    text-align:center;border:1px dashed rgba(255,201,60,.5);background:rgba(255,201,60,.08);
+    border-radius:14px;padding:11px 14px;margin-bottom:16px
+  }
+  .starter .who{font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--yellow);letter-spacing:-.01em}
+  .starter .lbl{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+  .verdict{text-align:center;padding:26px 18px;border-radius:var(--r);border:1px solid var(--line)}
+  .verdict.win{background:rgba(91,214,164,.12);border-color:rgba(91,214,164,.4)}
+  .verdict.lose{background:rgba(226,62,107,.12);border-color:rgba(226,62,107,.4)}
+  .verdict .big{font-family:var(--display);font-weight:800;font-size:2rem;letter-spacing:-.02em}
+
+  .wordpair{display:flex;gap:10px;margin-top:12px}
+  .wordpair > div{flex:1;background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:13px;text-align:center}
+  .wordpair .w{font-family:var(--display);font-weight:700;font-size:1.15rem;margin-top:4px;word-break:break-word}
+
+  .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .stat{background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center}
+  .stat .n{font-family:var(--display);font-weight:800;font-size:1.8rem;letter-spacing:-.02em}
+  .stat .l{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--ink-3);color:var(--muted)}
+
+  .spinner{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--yellow);animation:spin .8s linear infinite;margin:0 auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #toast{
+    position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translate(-50%,140%);
+    background:var(--paper);color:var(--ink);padding:12px 18px;border-radius:999px;
+    font-weight:700;font-size:.9rem;max-width:88vw;text-align:center;z-index:99;
+    transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 12px 30px -12px rgba(0,0,0,.8)
+  }
+  #toast.on{transform:translate(-50%,0)}
+
+  /* ---------- Avatar mit Rahmen und Symbol ---------- */
+  .avaWrap{position:relative;display:inline-block;line-height:0;flex:0 0 auto;isolation:isolate}
+  .avaWrap .ava{position:relative;z-index:1;display:block}
+  .avaLink{background:none;border:0;padding:0;line-height:0;cursor:pointer;flex:0 0 auto;border-radius:50%}
+  .avaLink:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+  .avaWrap::before{content:"";position:absolute;inset:-4px;border-radius:50%;z-index:0;display:none}
+  .avaBadge{
+    position:absolute;right:-2px;bottom:-2px;z-index:2;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--ink);border:1px solid var(--line);
+    display:grid;place-items:center;font-size:11px;line-height:1
+  }
+  .avaWrap.xl .avaBadge{width:25px;height:25px;font-size:14px}
+  .avaWrap.lg .avaBadge{width:33px;height:33px;font-size:19px;right:2px;bottom:2px}
+  .fr-gold  .ava{border-color:#FFC93C;box-shadow:0 0 0 3px rgba(255,201,60,.3)}
+  .fr-rose  .ava{border-color:#E23E6B;box-shadow:0 0 0 3px rgba(226,62,107,.3)}
+  .fr-mint  .ava{border-color:#5BD6A4;box-shadow:0 0 0 3px rgba(91,214,164,.3)}
+  .fr-paper .ava{border-color:#F4EFE4;box-shadow:0 0 0 3px rgba(244,239,228,.22)}
+  .fr-sunset::before{display:block;background:conic-gradient(#FFC93C,#E23E6B,#FFC93C)}
+  .fr-ocean::before {display:block;background:conic-gradient(#5BD6A4,#123734,#5BD6A4)}
+  .fr-royal::before {display:block;background:conic-gradient(#FFC93C,#F4EFE4,#E23E6B,#FFC93C);animation:spinFrame 5s linear infinite}
+  .fr-champion::before{display:block;background:conic-gradient(#FFC93C,#FFFFFF,#FFC93C)}
+  .fr-legend::before  {display:block;background:conic-gradient(#FFC93C,#E23E6B,#5BD6A4,#FFC93C);animation:spinFrame 7s linear infinite}
+  .fr-inferno::before {display:block;background:conic-gradient(#FF4D1C,#FFC93C,#E23E6B,#FF4D1C);animation:spinFrame 3.5s linear infinite}
+  .fr-veteran::before {display:block;background:conic-gradient(#5BD6A4,#F4EFE4,#5BD6A4)}
+  .fr-psychic::before {display:block;background:conic-gradient(#9B5DE5,#E23E6B,#9B5DE5);animation:spinFrame 9s linear infinite}
+  @keyframes spinFrame{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.fr-royal::before{animation:none}}
+
+  /* ---------- Shop & Inventar ---------- */
+  .goldbar{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    background:linear-gradient(160deg,rgba(255,201,60,.16),rgba(255,201,60,.05));
+    border:1px solid rgba(255,201,60,.42);border-radius:var(--r);padding:18px;margin-top:18px
+  }
+  .goldbar .amt{font-family:var(--display);font-weight:800;font-size:2.2rem;color:var(--yellow);letter-spacing:-.02em}
+  .goldbar .lbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .shopgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .item{
+    background:var(--ink);border:1px solid var(--line);border-radius:15px;
+    padding:12px 6px 10px;text-align:center;color:var(--paper);display:block;width:100%
+  }
+  .item .prev{font-size:1.75rem;line-height:1;margin-bottom:7px}
+  .item .nm{font-size:.78rem;font-weight:700;line-height:1.2;display:block}
+  .item .pr{font-family:var(--mono);font-size:.68rem;color:var(--yellow);margin-top:4px;display:block}
+  .item.owned{opacity:.55}
+  .item.owned .pr{color:var(--muted)}
+  .item.poor .pr{color:var(--magenta)}
+  .item.sel{border-color:var(--yellow);background:rgba(255,201,60,.14)}
+  .ring{width:44px;height:44px;border-radius:50%;margin:0 auto 7px;background:var(--ink-3)}
+  .item.locked{opacity:.45;border-style:dashed}
+
+  /* ---------- Trophäen ---------- */
+  .tro{display:flex;gap:13px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+  .tro:first-child{border-top:0}
+  .tro-ic{
+    flex:0 0 auto;width:46px;height:46px;border-radius:13px;background:var(--ink);
+    border:1px solid var(--line);display:grid;place-items:center;font-size:1.45rem;
+    filter:grayscale(1);opacity:.4
+  }
+  .tro.done .tro-ic{filter:none;opacity:1;background:rgba(255,201,60,.14);border-color:rgba(255,201,60,.5)}
+  .tro-nm{font-weight:700;font-size:.97rem}
+  .tro-tx{font-size:.8rem;color:var(--muted);margin-top:1px}
+  .bar{height:5px;border-radius:999px;background:var(--ink);margin-top:7px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--yellow);border-radius:999px}
+  .tro-pick{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);
+    background:var(--ink);color:var(--muted);display:grid;place-items:center;font-size:.85rem
+  }
+  .tro-pick.on{background:var(--yellow);border-color:var(--yellow);color:#2A1D00;font-weight:700}
+  .unlocknote{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--yellow);margin-top:4px}
+  .trophyline{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:.95rem}
+  .trophyline .ic{font-size:1.2rem}
+
+  /* ---------- Modus-Umschalter ---------- */
+  .seg{display:flex;gap:6px;background:var(--ink-2);border:1px solid var(--line);
+       border-radius:15px;padding:5px;margin-bottom:18px}
+  .seg button{flex:1;padding:11px 4px;border-radius:11px;background:transparent;
+              color:var(--muted);font-weight:700;font-size:.88rem}
+  .seg button.on{background:var(--yellow);color:#2A1D00}
+
+  /* ---------- Hinweis-Verlauf ---------- */
+  .hintlog{
+    max-height:32vh;overflow-y:auto;margin-top:12px;
+    display:flex;flex-direction:column;gap:7px;padding-right:2px
+  }
+  .hint{max-width:78%;padding:9px 13px;border-radius:15px;font-size:.95rem;word-break:break-word;line-height:1.3}
+  .hint.mine{align-self:flex-end;background:var(--yellow);color:#2A1D00;border-bottom-right-radius:5px;font-weight:600}
+  .hint.his {align-self:flex-start;background:var(--ink-3);color:var(--paper);border-bottom-left-radius:5px}
+  .hint.new{animation:hintIn .36s cubic-bezier(.16,1.25,.3,1) both}
+  @keyframes hintIn{from{opacity:0;transform:translateY(10px) scale(.88)}to{opacity:1;transform:none}}
+  /* Kompakte Spielansicht im getippten Modus */
+  #screen-game.compact .duel{gap:10px;margin-bottom:10px}
+  #screen-game.compact .duel .ava{width:32px;height:32px}
+  #screen-game.compact .avaBadge{width:15px;height:15px;font-size:8px}
+  #screen-game.compact .configpill{margin-bottom:9px}
+  #screen-game.compact .starter{padding:8px 12px;margin-bottom:11px}
+  #screen-game.compact .starter .who{font-size:1rem}
+  #screen-game.compact #wordEyebrow{display:none}
+  #screen-game.compact #gameHowTo{display:none}
+  #screen-game.compact .slip-hint{display:none}
+  #screen-game.compact .slip{min-height:104px;padding:14px;border-radius:16px;box-shadow:0 12px 26px -18px rgba(0,0,0,.7)}
+  #screen-game.compact .slip-cover{border-radius:16px}
+  #screen-game.compact .slip-word{font-size:clamp(1.5rem,7.5vw,2.15rem)}
+  #screen-game.compact .seal{width:60px;height:60px;font-size:.56rem}
+  #screen-game.compact #hintPanel{margin-top:12px;padding:13px}
+  #screen-game.compact .hintlog{max-height:23vh}
+  #screen-game.compact .stack{margin-top:14px}
+  #screen-game.compact #guessRow{display:flex;gap:10px}
+  #screen-game.compact #guessRow .gap{display:none}
+
+  .hintrow{display:flex;gap:8px;margin-top:12px}
+  .hintrow input{flex:1}
+  .sendbtn{flex:0 0 auto;padding:0 18px;border-radius:13px;background:var(--yellow);color:#2A1D00;font-weight:700}
+  .sendbtn:disabled{opacity:.4}
+  .invprev{display:grid;place-items:center;padding:8px 0 4px}
+
+  .iconbtn{
+    flex:0 0 auto;width:42px;height:42px;border-radius:50%;
+    background:var(--ink-2);border:1px solid var(--line);color:var(--muted);
+    display:grid;place-items:center
+  }
+  .iconbtn:hover{color:var(--paper);border-color:var(--muted)}
+  .iconbtn.box{width:auto;height:auto;padding:10px 12px;border-radius:11px}
+  .switch{
+    flex:0 0 auto;width:54px;height:31px;border-radius:999px;padding:3px;
+    background:var(--ink);border:1px solid var(--line);position:relative;
+    transition:background .2s ease,border-color .2s ease
+  }
+  .switch .knob{
+    display:block;width:23px;height:23px;border-radius:50%;background:var(--muted);
+    transition:transform .22s cubic-bezier(.4,1.3,.5,1),background .2s ease
+  }
+  .switch.on{background:rgba(255,201,60,.22);border-color:var(--yellow)}
+  .switch.on .knob{transform:translateX(23px);background:var(--yellow)}
+  .switch:disabled{opacity:.4}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;
+    background:linear-gradient(to right,var(--yellow) var(--p,30%),var(--ink) var(--p,30%));
+    outline:none;margin:14px 0 4px
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--yellow);border:3px solid var(--ink-2);cursor:pointer
+  }
+  input[type=range]::-moz-range-thumb{
+    width:18px;height:18px;border-radius:50%;background:var(--yellow);
+    border:3px solid var(--ink-2);cursor:pointer
+  }
+  input[type=range]:disabled{opacity:.4}
+  .record{font-family:var(--mono);font-size:.8rem;letter-spacing:.02em}
+  .record .w{color:var(--ok)}
+  .record .d{color:var(--muted)}
+  .record .l{color:var(--magenta)}
+  .record .sep{color:var(--line);margin:0 3px}
+  .step-n{
+    font-family:var(--display);font-weight:800;font-size:1.05rem;
+    width:28px;height:28px;border-radius:50%;background:var(--yellow);color:#2A1D00;
+    display:grid;place-items:center;margin-bottom:9px
+  }
+
+  /* ---------- Installationshinweis ---------- */
+  .install{
+    display:flex;gap:12px;align-items:flex-start;
+    background:linear-gradient(160deg,rgba(255,201,60,.14),rgba(255,201,60,.04));
+    border:1px solid rgba(255,201,60,.4);border-radius:var(--r);
+    padding:14px 14px 14px 15px;margin-bottom:16px
+  }
+  .install img{width:38px;height:38px;border-radius:10px;flex:0 0 auto}
+  .install .tt{font-weight:700;font-size:.95rem}
+  .install .bd{font-size:.85rem;color:#CFE0DC;margin-top:3px;line-height:1.45}
+  .install .x{
+    flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:transparent;
+    color:var(--muted);font-size:1.1rem;line-height:1;display:grid;place-items:center;margin:-3px -4px 0 0
+  }
+  .install .x:hover{color:var(--paper)}
+  .install .go{
+    margin-top:10px;padding:9px 14px;border-radius:11px;background:var(--yellow);
+    color:#2A1D00;font-weight:700;font-size:.88rem
+  }
+  .share{display:inline-block;vertical-align:-2px;color:var(--yellow)}
+
+  /* ---------- Adminfenster ---------- */
+  .pair{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .pair:first-child{border-top:0}
+  .pair .ws{font-weight:600;font-size:.94rem;line-height:1.3}
+  .pair .ws em{font-style:normal;color:var(--muted);margin:0 5px}
+  .pair .meta{font-family:var(--mono);font-size:.66rem;color:var(--muted);margin-top:2px}
+  .del{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--ink);
+       border:1px solid var(--line);color:var(--magenta);font-size:1rem;line-height:1}
+  .adminbadge{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;
+              text-transform:uppercase;padding:3px 7px;border-radius:999px;
+              background:rgba(255,201,60,.18);color:var(--yellow);margin-left:6px}
+
+  /* ---------- Login ---------- */
+  .brand{text-align:center;padding-top:8vh}
+  .logo{width:104px;height:104px;margin:0 auto;display:block;
+        filter:drop-shadow(0 18px 34px rgba(0,0,0,.55))}
+  .wordmark{font-family:var(--display);font-weight:800;font-size:clamp(3rem,15vw,4.2rem);
+            letter-spacing:-.045em;line-height:1;margin-top:18px}
+  .slogan{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;
+          color:var(--muted);margin-top:12px;line-height:1.9}
+  .slogan b{color:var(--yellow);font-weight:400}
+  .authbtn{
+    display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
+    padding:15px 18px;border-radius:14px;font-weight:700;font-size:1rem;margin-top:10px
+  }
+  .authbtn svg{flex:0 0 auto}
+  .auth-google{background:#fff;color:#1B1B1B}
+  .auth-apple{background:#000;color:#fff}
+  .auth-mail{background:transparent;color:var(--paper);border:1px solid var(--line)}
+  .authsep{display:flex;align-items:center;gap:12px;margin:20px 0 4px;
+           font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;
+           text-transform:uppercase;color:var(--muted)}
+  .authsep::before,.authsep::after{content:"";flex:1;height:1px;background:var(--line)}
+  #mailPanel{margin-top:14px}
+  #mailPanel input{margin-bottom:9px}
+  .tabs{display:flex;gap:6px;background:var(--ink);border:1px solid var(--line);
+        border-radius:13px;padding:4px;margin-bottom:12px}
+  .tabs button{flex:1;padding:9px;border-radius:9px;background:transparent;color:var(--muted);
+               font-weight:700;font-size:.88rem}
+  .tabs button.on{background:var(--ink-3);color:var(--paper)}
+
+  /* ---------- Intro ---------- */
+  #splash{
+    position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+    background:radial-gradient(120% 90% at 50% 40%, #1B4642 0%, #0C2724 62%);
+    padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+    text-align:center;
+    animation:splashOut 2.9s cubic-bezier(.6,.05,.2,1) forwards;
+  }
+  @keyframes splashOut{
+    0%,82%{opacity:1;visibility:visible}
+    100%{opacity:0;visibility:hidden;transform:scale(1.06)}
+  }
+  #splash .s-eyebrow{
+    font-family:var(--mono);font-size:.74rem;letter-spacing:.5em;text-transform:uppercase;
+    color:var(--muted);opacity:0;animation:sFade .7s .15s ease forwards
+  }
+  #splash .s-mask{overflow:hidden;padding:2px 0 8px}
+  #splash .s-word{
+    font-family:var(--display);font-weight:800;letter-spacing:-.045em;line-height:1;
+    font-size:clamp(3.1rem,17vw,5.4rem);color:var(--yellow);
+    transform:translateY(105%);animation:sRise .85s .35s cubic-bezier(.16,1,.3,1) forwards
+  }
+  #splash .s-rule{
+    height:2px;width:0;margin:6px auto 14px;background:var(--magenta);
+    animation:sRule .7s .95s cubic-bezier(.5,0,.2,1) forwards
+  }
+  #splash .s-sub{
+    font-family:var(--body);font-size:1.02rem;color:#CFE0DC;opacity:0;
+    animation:sFade .8s 1.15s ease forwards
+  }
+  @keyframes sFade{to{opacity:1}}
+  @keyframes sRise{to{transform:translateY(0)}}
+  @keyframes sRule{to{width:min(230px,62vw)}}
+  #splash.skip{animation:splashOut .28s forwards}
+  @media (prefers-reduced-motion:reduce){
+    #splash{animation:splashOut 2.2s steps(1,end) forwards}
+    #splash .s-eyebrow,#splash .s-word,#splash .s-rule,#splash .s-sub{animation:none;opacity:1;transform:none;width:auto}
+    #splash .s-rule{width:min(230px,62vw)}
+  }
+
+  /* ---------- Auswahl für Kategorie / Schwierigkeit ---------- */
+  select{
+    width:100%;padding:14px 44px 14px 15px;border-radius:13px;border:1px solid var(--line);
+    background:var(--ink);color:var(--paper);font-family:var(--body);font-size:1rem;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238CB0AA' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:18px
+  }
+  select:focus{outline:2px solid var(--yellow);outline-offset:1px}
+  select option{background:var(--ink-2);color:var(--paper)}
+  .levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .level{
+    border:1px solid var(--line);background:var(--ink);border-radius:13px;
+    padding:12px 6px;text-align:center;color:var(--paper);opacity:.62
+  }
+  .level .n{font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1}
+  .level .t{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;margin-top:5px;color:var(--muted)}
+  .level.on{opacity:1;border-color:var(--yellow);background:rgba(255,201,60,.14)}
+  .level.on .t{color:var(--yellow)}
+  .configpill{display:flex;justify-content:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+
+  /* ---------- Sieg-Animation ---------- */
+  #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80;display:none}
+  #fx.on{display:block}
+  .verdict.pop{animation:pop .62s cubic-bezier(.16,1.3,.3,1) both}
+  @keyframes pop{
+    0%{transform:scale(.72) rotate(-2.5deg);opacity:0}
+    55%{transform:scale(1.05) rotate(1deg);opacity:1}
+    100%{transform:scale(1) rotate(0);opacity:1}
+  }
+  .burst{
+    position:absolute;left:50%;top:-6px;transform:translateX(-50%);
+    font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--yellow);
+    text-shadow:0 6px 24px rgba(255,201,60,.55);pointer-events:none;opacity:0
+  }
+  .burst.go{animation:burstUp 1.6s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes burstUp{
+    0%{opacity:0;transform:translate(-50%,14px) scale(.5)}
+    22%{opacity:1;transform:translate(-50%,-14px) scale(1.18)}
+    45%{transform:translate(-50%,-20px) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-64px) scale(.96)}
+  }
+
+  .head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .link{background:none;border:0;color:var(--muted);font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:6px 0}
+  .link:hover{color:var(--paper)}
+  .empty{padding:18px 4px;text-align:center;color:var(--muted);font-size:.9rem}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div>
+    <div class="s-eyebrow">Wir sind</div>
+    <div class="s-mask"><div class="s-word">Imposter</div></div>
+    <div class="s-rule"></div>
+    <div class="s-sub">alle anderen lügen nur</div>
+  </div>
+</div>
+<div class="wrap">
+
+  <!-- LOADING -->
+  <section id="screen-loading" class="screen on">
+    <div style="padding:32vh 0 0"><div class="spinner"></div></div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="screen-auth" class="screen">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g transform="rotate(-13 46 64)">
+          <rect x="15" y="26" width="58" height="76" rx="14" fill="#F4EFE4" opacity=".38"/>
+          <circle cx="44" cy="54" r="8" fill="#0C2724" opacity=".45"/>
+          <rect x="28" y="74" width="32" height="5" rx="2.5" fill="#0C2724" opacity=".3"/>
+        </g>
+        <rect x="44" y="20" width="60" height="80" rx="15" fill="#123734" stroke="#FFC93C" stroke-width="3"/>
+        <circle cx="74" cy="50" r="10.5" fill="#FFC93C"/>
+        <rect x="58" y="72" width="32" height="5" rx="2.5" fill="#8CB0AA"/>
+        <rect x="58" y="83" width="20" height="5" rx="2.5" fill="#8CB0AA" opacity=".6"/>
+      </svg>
+      <h1 class="wordmark">Imposter</h1>
+      <p class="slogan">Wir sind Imposter<br><b>alle anderen lügen nur</b></p>
+    </div>
+
+    <div class="stack">
+      <button class="authbtn auth-google" id="btnGoogle">
+        <svg width="19" height="19" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.7 7l7.6 5.9c4.4-4.1 6.8-10.1 6.8-17.4z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+        Mit Google anmelden
+      </button>
+
+      <button class="authbtn auth-apple hidden" id="btnApple">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 12.54c-.02-2.35 1.92-3.48 2.01-3.53-1.1-1.6-2.8-1.82-3.4-1.85-1.45-.15-2.83.85-3.56.85-.74 0-1.87-.83-3.07-.81-1.58.02-3.04.92-3.85 2.33-1.64 2.85-.42 7.06 1.18 9.37.78 1.13 1.71 2.4 2.93 2.35 1.18-.05 1.62-.76 3.05-.76 1.42 0 1.82.76 3.06.74 1.26-.02 2.06-1.15 2.83-2.29.89-1.31 1.26-2.58 1.28-2.65-.03-.01-2.45-.94-2.47-3.75zM14.7 5.6c.65-.79 1.09-1.88.97-2.97-.94.04-2.07.62-2.74 1.41-.6.7-1.13 1.82-.99 2.89 1.05.08 2.11-.53 2.76-1.33z"/></svg>
+        Mit Apple anmelden
+      </button>
+
+      <button class="authbtn auth-mail" id="btnMailToggle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6.5l9 6 9-6"/></svg>
+        Mit E-Mail anmelden
+      </button>
+
+      <div id="mailPanel" class="card hidden">
+        <div class="tabs" id="mailTabs">
+          <button data-tab="in" class="on">Anmelden</button>
+          <button data-tab="up">Registrieren</button>
+        </div>
+        <input type="text" id="mailAddr" placeholder="E-Mail" autocomplete="email" inputmode="email" />
+        <input type="text" id="mailPass" placeholder="Passwort" autocomplete="current-password" />
+        <button class="btn yellow" id="btnMailGo" style="margin-top:5px">Anmelden</button>
+        <button class="link" id="btnMailReset" style="width:100%;margin-top:8px">Passwort vergessen</button>
+      </div>
+
+      <div class="authsep" id="guestSep">oder</div>
+      <button class="link" id="btnGuest" style="width:100%">Ohne Konto ausprobieren</button>
+    </div>
+  </section>
+
+  <!-- ONBOARDING -->
+  <section id="screen-onboarding" class="screen">
+    <div class="eyebrow">Schritt 1 von 1</div>
+    <h1 style="margin-top:10px">Dein Profil</h1>
+
+    <div class="card stack">
+      <label>Profilbild</label>
+      <div class="row" style="gap:14px">
+        <img id="obAva" class="ava lg" alt="" />
+        <div class="grow">
+          <button class="btn ghost sm" id="obPickPhoto">Bild wählen</button>
+          <p class="dim" style="margin-top:8px;font-size:.8rem">Wird auf 256 px verkleinert und im Profil gespeichert.</p>
+        </div>
+      </div>
+      <input type="file" id="obFile" accept="image/*" class="hidden" />
+    </div>
+
+    <div class="card">
+      <label for="obUsername">Benutzername</label>
+      <input type="text" id="obUsername" placeholder="z. B. jan_niklas" autocomplete="off" maxlength="16" />
+      <p class="dim" style="font-size:.8rem">3–16 Zeichen, Buchstaben, Zahlen und Unterstrich. Einmalig vergeben — darüber finden dich deine Freunde.</p>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="obSave">Profil anlegen</button>
+      <button class="link" id="obSignOut" style="width:100%;margin-top:10px">Abmelden</button>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen">
+    <div class="head">
+      <span id="homeAvaBox"></span>
+      <div class="grow">
+        <div class="eyebrow">Angemeldet als</div>
+        <h2 id="homeName" style="margin-top:4px">—</h2>
+      </div>
+      <button class="iconbtn" id="btnOptions" aria-label="Optionen">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="install hidden" id="installCard">
+      <img src="/icons/icon-192.png" alt="" />
+      <div class="grow">
+        <div class="tt">Auf den Home-Bildschirm legen</div>
+        <div class="bd" id="installText">—</div>
+        <button class="go hidden" id="installGo">Installieren</button>
+      </div>
+      <button class="x" id="installX" aria-label="Hinweis ausblenden">×</button>
+    </div>
+
+    <div class="install hidden" id="pushCard">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,201,60,.2);display:grid;place-items:center;flex:0 0 auto">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC93C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+        </svg>
+      </div>
+      <div class="grow">
+        <div class="tt">Benachrichtigungen einschalten?</div>
+        <div class="bd">Sonst merkst du nicht, wenn dich jemand herausfordert oder du am Zug bist.</div>
+        <button class="go" id="pushCardGo">Einschalten</button>
+      </div>
+      <button class="x" id="pushCardX" aria-label="Nicht jetzt">×</button>
+    </div>
+
+    <div class="seg" id="modeSeg">
+      <button data-mode="live">Lokal</button>
+      <button data-mode="chat">Online</button>
+      <button data-mode="arcade">Arcade</button>
+    </div>
+
+    <div id="invitesCard" class="card hidden" style="border-color:rgba(255,201,60,.45);background:rgba(255,201,60,.07)">
+      <div class="eyebrow" style="color:var(--yellow)">Herausforderung</div>
+      <div id="invitesList" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Freunde</h3>
+        <span class="pill" id="friendCount">0</span>
+      </div>
+      <div id="friendList" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:14px">
+        <input type="text" id="addUsername" placeholder="Benutzername" autocomplete="off" />
+        <button class="btn sm yellow" id="btnAddFriend" style="flex:0 0 auto">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="btnShop">Item-Shop</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="btnTrophies">Trophäen</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="btnTutorial">Tutorial</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="btnStats">Statistiken</button>
+      <button class="link" id="btnSignOut" style="width:100%;margin-top:14px">Abmelden</button>
+    </div>
+  </section>
+
+  <!-- TUTORIAL -->
+  <section id="screen-tutorial" class="screen">
+    <div class="head">
+      <button class="link" id="btnTutorialBack">← Menü</button>
+    </div>
+    <h1>So läuft eine Runde</h1>
+
+    <div class="card stack">
+      <div class="step-n">1</div>
+      <h3>Die drei Modi</h3>
+      <p>Ganz oben im Menü wählst du den Modus. <strong>Lokal</strong> heißt, ihr sitzt zusammen oder telefoniert und sagt euch die Hinweise laut. <strong>Online</strong> heißt, ihr tippt sie abwechselnd in die App — beide sehen den ganzen Verlauf untereinander, und der Zug wechselt nach jedem Wort.</p>
+      <p><strong>Arcade</strong> läuft wie Lokal, hat aber drei gleich wahrscheinliche Möglichkeiten: gleiches Wort, ähnliches Wort — oder einer von euch bekommt <strong>gar kein Wort</strong>. Wer eine Karte hat, tippt auf eine der drei Varianten. Wer keine hat, weiß es sofort und muss stattdessen das Wort des Gegners erraten, um zu punkten.</p>
+      <p>Der gewählte Modus gilt für jede Herausforderung, die du danach verschickst. Dein Gegner sieht ihn schon in der Einladung.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">2</div>
+      <h3>Herausfordern</h3>
+      <p>Such dir einen Freund aus der Liste. <strong>Herausfordern</strong> startet sofort, das <strong>Zahnrad</strong> daneben lässt dich Kategorie und Schwierigkeit wählen. Dein Gegner muss annehmen.</p>
+      <p style="font-size:.92rem">Tippst du auf das Bild eines Freundes, öffnet sich sein Profil mit allen Zahlen — dort kannst du ihn auch wieder entfernen.</p>
+      <p style="font-size:.92rem">Die drei Zahlen unter jedem Namen sind <strong>deine</strong> Bilanz gegen genau diesen Gegner: gewonnene Runden, Runden ohne eigenen Tipp, verlorene Runden.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">3</div>
+      <h3>Das geheime Wort</h3>
+      <p>Jeder bekommt eine Wortkarte, die nur er sieht — gedrückt halten zum Aufdecken, loslassen verdeckt sie wieder. In der Hälfte aller Runden habt ihr <strong>dasselbe</strong> Wort, in der anderen Hälfte zwei verwandte, aber verschiedene. Ihr wisst nicht, welcher Fall gerade gilt.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">4</div>
+      <h3>Hinweise geben</h3>
+      <p>Die App sagt, wer anfängt. Von da an nennt ihr euch abwechselnd <strong>außerhalb</strong> der App — am Tisch oder per Anruf — je ein einzelnes Hinweiswort zu eurem Wort. Zu deutlich, und du verrätst dich. Zu vage, und du erkennst nichts.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">5</div>
+      <h3>Festlegen</h3>
+      <p>Sobald jemand sicher ist, drückt er <strong>Gleiches Wort</strong> oder <strong>Imposter</strong>. Der erste Tipp beendet die Runde für beide — es zählt also auch, schnell zu sein.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-n">6</div>
+      <h3>Punkte</h3>
+      <p>Ein richtiger Tipp gibt <strong>einen Punkt</strong>. Wer auf Imposter tippt und recht behält, darf zusätzlich raten, welches Wort der andere hatte. Trifft der Tipp, gibt es einen <strong>zweiten Punkt</strong>. Synonyme und Tippfehler werden akzeptiert, bloß thematisch verwandte Wörter nicht.</p>
+    </div>
+
+    <div class="stack"><button class="btn" id="btnTutorialDone">Verstanden</button></div>
+  </section>
+
+  <!-- OPTIONEN -->
+  <section id="screen-options" class="screen">
+    <div class="head">
+      <button class="link" id="btnOptionsBack">← Menü</button>
+    </div>
+    <h1>Optionen</h1>
+
+    <div class="card stack">
+      <label>Profilbild</label>
+      <div class="row" style="gap:14px">
+        <img id="optAva" class="ava lg" alt="" />
+        <div class="grow">
+          <button class="btn ghost sm" id="optPickPhoto">Neues Bild wählen</button>
+          <p class="dim" style="margin-top:8px;font-size:.8rem">Wird auf 256 px verkleinert.</p>
+        </div>
+      </div>
+      <input type="file" id="optFile" accept="image/*" class="hidden" />
+    </div>
+
+    <div class="card">
+      <label>Benutzername</label>
+      <p id="optName" style="font-family:var(--display);font-weight:700;font-size:1.3rem;margin:0">—</p>
+      <p class="dim" style="font-size:.8rem;margin-top:6px">Der Benutzername ist fest vergeben und lässt sich nicht ändern.</p>
+    </div>
+
+    <div class="card">
+      <label>Aussehen</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Rahmen und Symbol für dein Profilbild wählst du im Inventar.</p>
+      <button class="btn ghost" id="btnInventory">Inventar öffnen</button>
+    </div>
+
+    <div class="card hidden" id="adminCard">
+      <label>Verwaltung</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Wortpaare einsehen, ergänzen und exportieren.</p>
+      <button class="btn ghost" id="btnAdmin">Adminfenster öffnen</button>
+    </div>
+
+    <div class="card">
+      <label>Benachrichtigungen</label>
+      <div class="row" style="justify-content:space-between;gap:14px">
+        <div class="grow">
+          <div style="font-weight:700">Push auf dieses Gerät</div>
+          <div class="dim" id="pushHint" style="font-size:.82rem;margin-top:2px">—</div>
+        </div>
+        <button class="switch" id="btnPush" role="switch" aria-checked="false"><span class="knob"></span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Musik</label>
+      <div class="row" style="justify-content:space-between;gap:14px">
+        <div class="grow">
+          <div style="font-weight:700">Hintergrundmusik</div>
+          <div class="dim" id="musicHint" style="font-size:.82rem;margin-top:2px">Läuft leise in der Schleife.</div>
+        </div>
+        <button class="switch" id="btnMusic" role="switch" aria-checked="false"><span class="knob"></span></button>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:6px">
+        <span class="dim" style="font-size:.8rem">Lautstärke</span>
+        <span class="dim" id="volLabel" style="font-family:var(--mono);font-size:.8rem">30 %</span>
+      </div>
+      <input type="range" id="volSlider" min="0" max="100" step="5" value="30" aria-label="Lautstärke" />
+    </div>
+
+    <div class="card">
+      <label>Bilanz</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Setzt Siege, neutrale Runden und Niederlagen auf null. Punkte und Gold bleiben erhalten.</p>
+      <button class="btn ghost" id="btnResetRecord">Bilanz zurücksetzen</button>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="optSave" disabled>Speichern</button>
+    </div>
+  </section>
+
+  <!-- ADMINFENSTER -->
+  <section id="screen-admin" class="screen">
+    <div class="head">
+      <button class="link" id="btnAdminBack">← Optionen</button>
+    </div>
+    <h1>Adminfenster</h1>
+
+    <div class="card stack">
+      <h3>Überblick</h3>
+      <div class="statgrid" id="admStats1" style="grid-template-columns:repeat(2,1fr)"></div>
+      <div class="statgrid" id="admStats2"></div>
+      <div class="statgrid" id="admStats3"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Benutzer</h3>
+        <span class="pill" id="userCount">0</span>
+      </div>
+      <input type="text" id="userSearch" placeholder="Suchen …" autocomplete="off" style="margin-top:10px" />
+      <div id="userList" style="margin-top:6px;max-height:44vh;overflow-y:auto"></div>
+    </div>
+
+    <div class="card">
+      <h3>Verschenken</h3>
+      <p class="dim" style="font-size:.82rem;margin:2px 0 0">Geht sofort ins Inventar bzw. aufs Konto — ohne Goldabzug.</p>
+      <select id="giftUser" style="margin-top:11px"></select>
+      <select id="giftItem" style="margin-top:9px"></select>
+      <button class="btn yellow" id="btnGiftItem" style="margin-top:11px">Item schenken</button>
+      <div class="row" style="margin-top:14px">
+        <input type="text" id="giftGold" placeholder="Gold, z. B. 250" inputmode="numeric" autocomplete="off" />
+        <button class="btn sm ghost" id="btnGiftGold" style="flex:0 0 auto">Senden</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h3>Wortpaare</h3>
+        <span class="pill" id="pairCount">0</span>
+      </div>
+      <input type="text" id="pairSearch" placeholder="Suchen …" autocomplete="off" style="margin-top:10px" />
+      <div id="pairList" style="margin-top:6px;max-height:46vh;overflow-y:auto"></div>
+      <div class="row" style="margin-top:14px;gap:8px">
+        <button class="btn sm ghost" id="btnPairReload">Neu laden</button>
+        <button class="btn sm ghost" id="btnPairExport">Als JSON exportieren</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Paar hinzufügen</h3>
+      <div class="row" style="margin-top:10px;gap:8px">
+        <input type="text" id="newA" placeholder="Wort A" autocomplete="off" />
+        <input type="text" id="newB" placeholder="Wort B" autocomplete="off" />
+      </div>
+      <select id="newCat" style="margin-top:9px"></select>
+      <div class="levels" id="newLevel"></div>
+      <button class="btn yellow" id="btnPairAdd" style="margin-top:14px">Speichern</button>
+    </div>
+
+    <div class="card">
+      <h3>Administratoren</h3>
+      <div id="adminList" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:14px">
+        <input type="text" id="adminUser" placeholder="Benutzername" autocomplete="off" />
+        <button class="btn sm yellow" id="btnAdminAdd" style="flex:0 0 auto">Ernennen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ITEM-SHOP -->
+  <section id="screen-shop" class="screen">
+    <div class="head">
+      <button class="link" id="btnShopBack">← Menü</button>
+    </div>
+    <h1>Item-Shop</h1>
+
+    <div class="goldbar">
+      <div>
+        <div class="amt" id="shopGold" style="text-align:center">0</div>
+        <div class="lbl" style="text-align:center">Gold</div>
+      </div>
+    </div>
+    <p class="dim" style="font-size:.85rem;margin-top:10px">Ein richtiger Tipp bringt 5 Gold, ein richtiger Tipp mit erratenem Wort 10.</p>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Symbole</h3>
+      <p class="dim" style="font-size:.82rem;margin:2px 0 0">Erscheinen klein unten rechts an deinem Bild.</p>
+      <div class="shopgrid" id="shopBadges"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rahmen</h3>
+      <p class="dim" style="font-size:.82rem;margin:2px 0 0">Umranden dein Profilbild.</p>
+      <div class="shopgrid" id="shopFrames"></div>
+    </div>
+  </section>
+
+  <!-- TROPHÄEN -->
+  <section id="screen-trophies" class="screen">
+    <div class="head">
+      <button class="link" id="btnTrophiesBack">← Menü</button>
+    </div>
+    <h1>Trophäen</h1>
+
+    <div class="goldbar">
+      <div>
+        <div class="amt" id="troCount" style="text-align:center">0</div>
+        <div class="lbl" style="text-align:center">von <span id="troTotal">0</span> freigeschaltet</div>
+      </div>
+    </div>
+    <p class="dim" style="font-size:.85rem;margin-top:10px">Tippe rechts auf den Kreis, um eine Trophäe in deinem Profil zu zeigen.</p>
+
+    <div id="troList"></div>
+  </section>
+
+  <!-- INVENTAR -->
+  <section id="screen-inventory" class="screen">
+    <div class="head">
+      <button class="link" id="btnInventoryBack">← Zurück</button>
+    </div>
+    <h1>Inventar</h1>
+
+    <div class="card stack">
+      <div class="invprev" id="invPreview"></div>
+      <p class="dim" style="text-align:center;font-size:.85rem;margin:10px 0 0">So sehen dich die anderen.</p>
+    </div>
+
+    <div class="card">
+      <h3>Symbol</h3>
+      <div class="shopgrid" id="invBadges"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rahmen</h3>
+      <div class="shopgrid" id="invFrames"></div>
+    </div>
+
+    <div class="stack"><button class="btn ghost" id="btnToShopFromInv">Zum Item-Shop</button></div>
+  </section>
+
+  <!-- FREUNDESPROFIL -->
+  <section id="screen-friend" class="screen">
+    <div class="head">
+      <button class="link" id="btnFriendBack">← Menü</button>
+    </div>
+
+    <div style="text-align:center">
+      <div id="frAva" style="display:inline-block"></div>
+      <h1 id="frName" style="margin-top:14px">—</h1>
+      <p class="dim" id="frSince" style="margin-top:6px">—</p>
+      <div id="frTrophy" class="trophyline"></div>
+    </div>
+
+    <div class="card stack">
+      <div class="eyebrow">Eure Bilanz</div>
+      <div id="frVs" style="font-size:1.6rem;margin-top:8px"></div>
+      <p class="dim" style="font-size:.82rem;margin-top:8px">Deine Siege · Runden ohne deinen Tipp · deine Niederlagen</p>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Insgesamt</div>
+      <div class="statgrid">
+        <div class="stat"><div class="n" id="frGames">0</div><div class="l">Runden</div></div>
+        <div class="stat"><div class="n" id="frPoints" style="color:var(--yellow)">0</div><div class="l">Punkte</div></div>
+        <div class="stat"><div class="n" id="frRate">—</div><div class="l">Trefferquote</div></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="frChallenge">Herausfordern</button>
+      <div style="height:10px"></div>
+      <button class="btn ghost" id="frSetup">Erweitertes Duell</button>
+      <button class="link" id="frRemove" style="width:100%;margin-top:18px;color:var(--magenta)">Freund entfernen</button>
+    </div>
+  </section>
+
+  <!-- ERWEITERTES DUELL -->
+  <section id="screen-setup" class="screen">
+    <div class="head">
+      <button class="link" id="btnSetupBack">← Menü</button>
+    </div>
+    <div class="row" style="margin-bottom:18px">
+      <span id="setupAvaBox"></span>
+      <div class="grow">
+        <div class="eyebrow">Erweitertes Duell gegen</div>
+        <h2 id="setupName" style="margin-top:4px">—</h2>
+      </div>
+    </div>
+
+    <div class="card">
+      <label for="catSelect">Kategorie</label>
+      <select id="catSelect"></select>
+      <p class="dim" style="font-size:.82rem;margin-top:8px">Bei „Zufällig“ wird pro Runde eine Kategorie ausgelost.</p>
+    </div>
+
+    <div class="card">
+      <h3>Schwierigkeit</h3>
+      <p class="dim" style="font-size:.82rem;margin:4px 0 0">Je höher die Stufe, desto ähnlicher liegen die beiden Wörter beieinander — und desto schwerer ist der Imposter zu entlarven.</p>
+      <div class="levels" id="levelPicker"></div>
+      <p class="dim" id="levelDesc" style="font-size:.85rem;margin-top:12px">—</p>
+    </div>
+
+    <div class="stack">
+      <button class="btn yellow" id="btnSendSetup">Herausforderung senden</button>
+    </div>
+  </section>
+
+  <!-- WAITING FOR ACCEPT -->
+  <section id="screen-waiting" class="screen">
+    <div style="padding-top:14vh;text-align:center">
+      <div class="spinner"></div>
+      <h2 style="margin-top:22px">Herausforderung verschickt</h2>
+      <p id="waitText" class="dim" style="margin-top:8px">Warte auf Antwort …</p>
+      <div class="stack"><button class="btn ghost" id="btnCancelChallenge">Zurückziehen</button></div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="screen-game" class="screen">
+    <div class="duel">
+      <span id="gMeBox"></span>
+      <span class="vs">gegen</span>
+      <span id="gOppBox"></span>
+    </div>
+
+    <div class="configpill" id="gameConfig"></div>
+
+    <div class="starter">
+      <div class="lbl">Erstes Hinweiswort</div>
+      <div class="who" id="starterWho">—</div>
+    </div>
+
+    <div id="wordEyebrow" style="text-align:center;margin-bottom:14px">
+      <div class="eyebrow">Dein geheimes Wort</div>
+    </div>
+
+    <div class="slip" id="slip" role="button" tabindex="0" aria-label="Gedrückt halten, um das Wort zu sehen">
+      <div class="slip-word" id="slipWord">…</div>
+      <div class="slip-cover" id="slipCover">
+        <div class="seal">gedrückt<br>halten</div>
+      </div>
+    </div>
+    <p class="slip-hint" style="text-align:center;margin-top:12px">Loslassen verdeckt das Wort wieder</p>
+
+    <div class="card" id="hintPanel" style="margin-top:20px">
+      <div class="eyebrow">Hinweise</div>
+      <div class="hintlog" id="hintLog"></div>
+      <div class="hintrow">
+        <input type="text" id="hintInput" placeholder="ein Wort" autocomplete="off" maxlength="24" />
+        <button class="sendbtn" id="btnHint">Senden</button>
+      </div>
+    </div>
+
+    <div class="stack">
+      <p class="dim" id="gameHowTo" style="text-align:center;margin-bottom:12px">Gebt euch außerhalb der App Hinweise. Wer zuerst tippt, beendet die Runde.</p>
+      <div id="guessRow">
+        <button class="btn yellow" id="btnSame">Gleiches Wort</button>
+        <div class="gap" style="height:10px"></div>
+        <button class="btn magenta" id="btnImposter">Imposter</button>
+        <div class="gap gap2 hidden" style="height:10px"></div>
+        <button class="btn ghost hidden" id="btnBlank">Der hat kein Wort</button>
+      </div>
+      <button class="btn yellow hidden" id="btnBlankGuess" style="margin-top:0">Sein Wort raten</button>
+    </div>
+  </section>
+
+  <!-- GUESSING: das gegnerische Wort raten -->
+  <section id="screen-guessing" class="screen">
+    <div style="padding-top:6vh">
+      <div class="eyebrow" id="guessEyebrow">Imposter bestätigt</div>
+      <h1 style="margin-top:10px" id="guessTitle">Rate sein Wort</h1>
+      <p style="margin-top:10px" id="guessLead">Ihr hattet unterschiedliche Wörter — der Punkt ist dir sicher. Wenn du jetzt errätst, welches Wort dein Gegner hatte, gibt es einen zweiten.</p>
+
+      <div class="card stack">
+        <label for="wordGuessInput">Dein Tipp</label>
+        <input type="text" id="wordGuessInput" placeholder="ein Wort" autocomplete="off" maxlength="40" />
+        <p class="dim" style="font-size:.8rem">Synonyme und Schreibfehler werden akzeptiert, thematisch verwandte Wörter nicht.</p>
+      </div>
+
+      <div class="stack">
+        <button class="btn yellow" id="btnSubmitWordGuess">Tipp abgeben</button>
+        <div style="height:10px"></div>
+        <button class="btn ghost" id="btnSkipWordGuess">Überspringen</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAIT: Gegner rät mein Wort -->
+  <section id="screen-waitguess" class="screen">
+    <div style="padding-top:14vh;text-align:center">
+      <div class="spinner"></div>
+      <h2 style="margin-top:22px" id="wgTitle">Er rät dein Wort</h2>
+      <p id="wgText" class="dim" style="margin-top:8px">—</p>
+      <div class="stack"><button class="btn ghost" id="btnForceEnd">Runde beenden</button></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="screen-result" class="screen">
+    <div id="verdict" class="verdict" style="margin-top:8vh;position:relative">
+      <div class="burst" id="pointsBurst">+1</div>
+      <div class="eyebrow" id="verdictEyebrow">Runde beendet</div>
+      <div class="big" id="verdictBig" style="margin-top:8px">—</div>
+      <p id="verdictText" style="margin-top:6px"></p>
+    </div>
+
+    <div class="card hidden" id="wordGuessCard">
+      <div class="eyebrow">Der Worttipp</div>
+      <p id="wordGuessText" style="margin-top:6px"></p>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div class="eyebrow">Die Wörter</div>
+      <div class="wordpair">
+        <div><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)" id="wpMeName">Du</div><div class="w" id="wpMeWord">—</div></div>
+        <div><div style="font-family:var(--mono);font-size:.68rem;color:var(--muted)" id="wpOppName">Gegner</div><div class="w" id="wpOppWord">—</div></div>
+      </div>
+      <p class="dim" style="margin-top:12px" id="pairNote"></p>
+    </div>
+
+    <div class="stack"><button class="btn" id="btnBackHome">Zurück zum Menü</button></div>
+  </section>
+
+  <!-- STATS -->
+  <section id="screen-stats" class="screen">
+    <div class="head">
+      <button class="link" id="btnStatsBack">← Menü</button>
+    </div>
+    <h1>Statistiken</h1>
+    <div class="card stack">
+      <div class="row">
+        <span id="stAvaBox"></span>
+        <div class="grow"><div class="name" id="stName" style="font-weight:700">—</div><div class="sub" id="stRate" style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">—</div></div>
+      </div>
+      <div id="stTrophy" class="trophyline" style="justify-content:flex-start"></div>
+      <div style="display:none">
+      </div>
+      <div class="statgrid">
+        <div class="stat"><div class="n" id="stGames">0</div><div class="l">Runden</div></div>
+        <div class="stat"><div class="n" id="stPoints" style="color:var(--yellow)">0</div><div class="l">Punkte</div></div>
+        <div class="stat"><div class="n" id="stWrong" style="color:var(--magenta)">0</div><div class="l">Daneben</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Rangliste</h3>
+      <div id="leaderboard" style="margin-top:8px"></div>
+    </div>
+  </section>
+
+</div>
+<audio id="bgm" src="/musik.mp3" loop preload="auto"></audio>
+<canvas id="fx"></canvas>
+<div id="toast"></div>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════════
+   1) FIREBASE-KONFIGURATION
+   ══════════════════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyAcX3srk-8QwQsmBceNL60QOqKm9nsAXtQ",
+  authDomain:        "imposter-97906.firebaseapp.com",
+  projectId:         "imposter-97906",
+  storageBucket:     "imposter-97906.firebasestorage.app",
+  messagingSenderId: "901485243872",
+  appId:             "1:901485243872:web:4747b8e2966374cdac4f85",
+  measurementId:     "G-1PVH3B9LMB"
+};
+
+/* Anmeldewege. Jeder muss in der Firebase Console unter
+   Authentication → Sign-in method aktiviert sein.
+   Apple erfordert zusätzlich ein kostenpflichtiges Apple-Developer-Konto. */
+const LOGIN = { google: true, apple: false, email: true, guest: true };
+
+/* Web-Push-Zertifikat aus der Firebase Console:
+   Projekteinstellungen → Cloud Messaging → Web-Konfiguration → Schlüsselpaar generieren. */
+const VAPID_KEY = "BJEYwBeWexFtDo92-GKE0I1kaWv3dROqnfZ0JA7AzvGoGpiXX6PvuTb6wOnn6HxpxHlz308bn9ezlThgmM8SJUs";
+
+/* Der Gründer-Account: darf immer ins Adminfenster und weitere Admins ernennen. */
+const ROOT_ADMIN = "dachsi";
+
+/* Vercel Functions, die die Anthropic API aufrufen. */
+const WORDS_ENDPOINT = "/api/words";
+const CHECK_ENDPOINT = "/api/check";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, signInAnonymously,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getMessaging, getToken, isSupported } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-messaging.js";
+import {
+  getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  query, orderBy, limit, onSnapshot, runTransaction,
+  arrayUnion, arrayRemove, increment, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ══════════════════════════════════════════════════════════════
+   2) Hilfsfunktionen
+   ══════════════════════════════════════════════════════════════ */
+const $  = id => document.getElementById(id);
+
+/* Intro: läuft per CSS ab, lässt sich antippen und wird danach entfernt. */
+(function(){
+  const sp = $("splash");
+  if (!sp) return;
+  const kill = () => sp.remove();
+  sp.addEventListener("click", () => { sp.classList.add("skip"); setTimeout(kill, 300); });
+  sp.addEventListener("animationend", e => { if (e.animationName === "splashOut") kill(); });
+  setTimeout(kill, 3400);
+})();
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const AVA_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#1B4642"/><circle cx="32" cy="25" r="11" fill="#8CB0AA"/><path d="M8 64c0-14 11-22 24-22s24 8 24 22z" fill="#8CB0AA"/></svg>`
+);
+
+let toastTimer;
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("on"), 2800);
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+  window.scrollTo(0,0);
+}
+function esc(s){ return String(s??"").replace(/[<>&"]/g, c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])); }
+const userRef = uid => doc(db,"users",uid);
+
+/* Firestore-Regeln greifen erst, wenn der Server den Status bestätigt hat.
+   Deshalb wird ein Lesevorgang mehrfach versucht, statt aufzugeben. */
+async function getDocRetry(ref, tries = 8){
+  for (let i = 0; i < tries; i++){
+    try {
+      const s = await getDoc(ref);
+      if (s.exists()) return s;
+    } catch(_){}
+    await sleep(200 + i * 200);
+  }
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3) Zustand
+   ══════════════════════════════════════════════════════════════ */
+let me = null;            // Firebase-Auth-User
+let profile = null;       // users/{uid}
+let unsubProfile = null, unsubInvites = null, unsubGame = null;
+let currentGameId = null, currentGame = null;
+let myWord = null, verdictCache = null, resultCache = null;
+let sideEffectGuard = "";  // verhindert doppelte Schreibvorgänge pro Phase
+let pendingPhoto = null;
+const userCache = new Map();
+
+/* ══════════════════════════════════════════════════════════════
+   4) Anmeldung
+   ══════════════════════════════════════════════════════════════ */
+const AUTH_ERR = {
+  "auth/invalid-email": "Diese E-Mail-Adresse ist ungültig.",
+  "auth/missing-password": "Bitte ein Passwort eingeben.",
+  "auth/weak-password": "Das Passwort braucht mindestens 6 Zeichen.",
+  "auth/email-already-in-use": "Diese Adresse ist schon registriert — melde dich an.",
+  "auth/invalid-credential": "E-Mail oder Passwort stimmt nicht.",
+  "auth/user-not-found": "Zu dieser Adresse gibt es kein Konto.",
+  "auth/wrong-password": "Das Passwort stimmt nicht.",
+  "auth/too-many-requests": "Zu viele Versuche. Warte einen Moment.",
+  "auth/operation-not-allowed": "Dieser Anmeldeweg ist in Firebase noch nicht aktiviert.",
+  "auth/popup-blocked": "Das Fenster wurde blockiert. Erlaube Pop-ups oder nutze E-Mail."
+};
+const authMsg = e => AUTH_ERR[e?.code] || ("Anmeldung fehlgeschlagen: " + (e?.code || e?.message || ""));
+
+async function oauth(provider){
+  try { await signInWithPopup(auth, provider); }
+  catch(e){
+    if (String(e.code).includes("popup")){
+      try { await signInWithRedirect(auth, provider); return; } catch(_){}
+    }
+    toast(authMsg(e));
+  }
+}
+
+// Nur aktivierte Wege zeigen
+if (!LOGIN.apple) $("btnApple").classList.add("hidden"); else $("btnApple").classList.remove("hidden");
+if (!LOGIN.email) $("btnMailToggle").classList.add("hidden");
+if (!LOGIN.guest){ $("btnGuest").classList.add("hidden"); $("guestSep").classList.add("hidden"); }
+
+$("btnGoogle").onclick = () => {
+  const p = new GoogleAuthProvider();
+  p.setCustomParameters({ prompt: "select_account" });
+  oauth(p);
+};
+$("btnApple").onclick = () => {
+  const p = new OAuthProvider("apple.com");
+  p.addScope("email"); p.addScope("name");
+  oauth(p);
+};
+$("btnGuest").onclick = async () => {
+  try { await signInAnonymously(auth); }
+  catch(e){ toast(authMsg(e)); }
+};
+
+let mailMode = "in";
+$("btnMailToggle").onclick = () => {
+  $("mailPanel").classList.toggle("hidden");
+  if (!$("mailPanel").classList.contains("hidden")) $("mailAddr").focus();
+};
+$("mailTabs").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+  mailMode = b.dataset.tab;
+  $("mailTabs").querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("on", x === b));
+  $("btnMailGo").textContent = mailMode === "in" ? "Anmelden" : "Konto erstellen";
+  $("btnMailReset").classList.toggle("hidden", mailMode !== "in");
+});
+$("btnMailGo").onclick = async () => {
+  const mail = $("mailAddr").value.trim();
+  const pass = $("mailPass").value;
+  if (!mail || !pass){ toast("E-Mail und Passwort eingeben."); return; }
+  const btn = $("btnMailGo"); btn.disabled = true;
+  try {
+    if (mailMode === "in") await signInWithEmailAndPassword(auth, mail, pass);
+    else                   await createUserWithEmailAndPassword(auth, mail, pass);
+  } catch(e){ toast(authMsg(e)); }
+  finally { btn.disabled = false; }
+};
+$("btnMailReset").onclick = async () => {
+  const mail = $("mailAddr").value.trim();
+  if (!mail){ toast("Trag zuerst deine E-Mail-Adresse ein."); return; }
+  try {
+    await sendPasswordResetEmail(auth, mail);
+    toast("E-Mail zum Zurücksetzen verschickt.");
+  } catch(e){ toast(authMsg(e)); }
+};
+$("mailPass").addEventListener("keydown", e => { if (e.key === "Enter") $("btnMailGo").click(); });
+$("btnSignOut").onclick = $("obSignOut").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  cleanup();
+  me = user;
+  if (!user){ show("screen-auth"); return; }
+
+  const snap = await getDoc(userRef(user.uid));
+  if (!snap.exists() || !snap.data().username){
+    pendingPhoto = user.photoURL ? await urlToDataUrl(user.photoURL) : null;
+    $("obAva").src = pendingPhoto || AVA_FALLBACK;
+    $("obUsername").value = suggestName(user.displayName || user.email || "spieler" + Math.floor(Math.random()*9000+1000));
+    show("screen-onboarding");
+    return;
+  }
+  startSession();
+});
+
+function cleanup(){
+  [unsubProfile, unsubInvites, unsubGame].forEach(f => f && f());
+  unsubProfile = unsubInvites = unsubGame = null;
+  currentGameId = currentGame = myWord = verdictCache = resultCache = profile = null;
+  sideEffectGuard = "";
+  loginChecked = false;
+}
+function suggestName(s){
+  return s.toLowerCase().replace(/[^a-z0-9_]/g,"").slice(0,16) || "spieler";
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5) Onboarding — Benutzername + Bild
+   ══════════════════════════════════════════════════════════════ */
+$("obPickPhoto").onclick = () => $("obFile").click();
+$("obFile").onchange = async e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  try {
+    pendingPhoto = await resizeImage(file, 256);
+    $("obAva").src = pendingPhoto;
+  } catch(_){ toast("Bild konnte nicht gelesen werden."); }
+};
+
+function resizeImage(file, size){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        const ctx = c.getContext("2d");
+        const s = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+        resolve(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function urlToDataUrl(url){
+  try {
+    const blob = await (await fetch(url, {mode:"cors"})).blob();
+    return await resizeImage(blob, 256);
+  } catch(_){ return null; }
+}
+
+$("obSave").onclick = async () => {
+  const raw = $("obUsername").value.trim();
+  if (!/^[A-Za-z0-9_]{3,16}$/.test(raw)){
+    toast("3–16 Zeichen: Buchstaben, Zahlen, Unterstrich."); return;
+  }
+  const lower = raw.toLowerCase();
+  const btn = $("obSave"); btn.disabled = true; btn.textContent = "Wird angelegt …";
+  try {
+    await runTransaction(db, async tx => {
+      const nameRef = doc(db,"usernames",lower);
+      const taken = await tx.get(nameRef);
+      if (taken.exists() && taken.data().uid !== me.uid) throw new Error("taken");
+      tx.set(nameRef, { uid: me.uid });
+      tx.set(userRef(me.uid), {
+        uid: me.uid,
+        username: raw,
+        usernameLower: lower,
+        photo: pendingPhoto || "",
+        friends: [],
+        activeGameId: null,
+        gold: 0,
+        goldTotal: 0,
+        owned: [],
+        vs: {},
+        streak: 0,
+        bestStreak: 0,
+        loginDays: 0,
+        lastLogin: "",
+        pushTokens: [],
+        bonusHits: 0,
+        trophy: "",
+        badge: "",
+        frame: "",
+        stats: { games: 0, points: 0, wins: 0, draws: 0, wrong: 0 },
+        createdAt: serverTimestamp()
+      }, { merge: true });
+    });
+    startSession();
+  } catch(e){
+    toast(e.message === "taken" ? "Benutzername ist schon vergeben." : "Fehler: " + (e.code || e.message));
+  } finally { btn.disabled = false; btn.textContent = "Profil anlegen"; }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   6) Session — Live-Listener
+   ══════════════════════════════════════════════════════════════ */
+function startSession(){
+  show("screen-home");
+
+  unsubProfile = onSnapshot(userRef(me.uid), snap => {
+    if (!snap.exists()) return;
+    profile = snap.data();
+    countLoginDay();
+    loadAdmins();
+    pushStatusPruefen();
+    renderHome();
+    renderStats();
+    loadFriends();
+    if ($("screen-shop").classList.contains("on")) renderShop();
+    if ($("screen-inventory").classList.contains("on")) renderInventory();
+    if ($("screen-trophies").classList.contains("on")) renderTrophies();
+    if (profile.activeGameId && profile.activeGameId !== currentGameId) watchGame(profile.activeGameId);
+  });
+
+  unsubInvites = onSnapshot(collection(db,"users",me.uid,"invites"), snap => {
+    renderInvites(snap.docs.map(d => ({ id:d.id, ...d.data() })));
+  });
+}
+
+let loginChecked = false;
+async function countLoginDay(){
+  if (loginChecked || !profile) return;
+  loginChecked = true;
+  const today = new Date().toLocaleDateString("sv-SE");   // YYYY-MM-DD, lokale Zeit
+  if (profile.lastLogin === today) return;
+  try {
+    await updateDoc(userRef(me.uid), { lastLogin: today, loginDays: increment(1) });
+  } catch(_){}
+}
+
+function renderHome(){
+  renderInstall();
+  renderPushAsk();
+  $("homeAvaBox").innerHTML = avaHTML(meLook(), "xl");
+  $("homeName").textContent = profile.username;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Items: Symbole und Rahmen
+   ══════════════════════════════════════════════════════════════ */
+const BADGES = [
+  { id:"lupe",   icon:"🔍", label:"Detektiv",  price:60 },
+  { id:"maske",  icon:"🎭", label:"Maske",     price:60 },
+  { id:"kerze",  icon:"🕯️", label:"Kerze",     price:60 },
+  { id:"fuchs",  icon:"🦊", label:"Fuchs",     price:90 },
+  { id:"schlange",icon:"🐍",label:"Schlange",  price:90 },
+  { id:"blitz",  icon:"⚡", label:"Blitz",     price:90 },
+  { id:"flamme", icon:"🔥", label:"Flamme",    price:130 },
+  { id:"eis",    icon:"🧊", label:"Eis",       price:130 },
+  { id:"joker",  icon:"🃏", label:"Joker",     price:180 },
+  { id:"schaedel",icon:"💀",label:"Totenkopf", price:180 },
+  { id:"ufo",    icon:"🛸", label:"Ufo",       price:250 },
+  { id:"krone",  icon:"👑", label:"Krone",     price:400 },
+  // Nur über Trophäen erreichbar
+  { id:"medaille", icon:"🏅", label:"Medaille", unlock:"w50"  },
+  { id:"stern",    icon:"🌟", label:"Stern",    unlock:"s10"  },
+  { id:"mond",     icon:"🌙", label:"Mond",     unlock:"d30"  },
+  { id:"hirn",     icon:"🧠", label:"Hirn",     unlock:"b10"  },
+  { id:"diamant",  icon:"💎", label:"Diamant",  unlock:"g1000"}
+];
+const FRAMES = [
+  { id:"paper",  label:"Papier",      price:150 },
+  { id:"gold",   label:"Gold",        price:280 },
+  { id:"rose",   label:"Rose",        price:280 },
+  { id:"mint",   label:"Minze",       price:280 },
+  { id:"sunset", label:"Abendrot",    price:550 },
+  { id:"ocean",  label:"Tiefsee",     price:550 },
+  { id:"royal",  label:"Königlich",   price:1000 },
+  // Nur über Trophäen erreichbar
+  { id:"champion", label:"Champion", unlock:"w100" },
+  { id:"legend",   label:"Legende",  unlock:"w250" },
+  { id:"inferno",  label:"Inferno",  unlock:"s20"  },
+  { id:"veteran",  label:"Veteran",  unlock:"d100" },
+  { id:"psychic",  label:"Seher",    unlock:"b50"  }
+];
+const badgeById = id => BADGES.find(b => b.id === id);
+const frameById = id => FRAMES.find(f => f.id === id);
+
+/* Avatar inklusive Rahmen und Symbol. cls: "", "xl" oder "lg". */
+function avaHTML(u, cls = ""){
+  const frame = u?.frame && frameById(u.frame) ? "fr-" + u.frame : "";
+  const b = badgeById(u?.badge);
+  return `<span class="avaWrap ${cls} ${frame}">`
+    + `<img class="ava ${cls}" src="${esc(u?.photo || AVA_FALLBACK)}" alt="" />`
+    + (b ? `<span class="avaBadge">${b.icon}</span>` : "")
+    + `</span>`;
+}
+/* Bilanz-Zeile: Siege / neutrale Runden / Niederlagen */
+function recordBar(w, d, l){
+  return `<div class="record"><span class="w">${w}</span><span class="sep">/</span>`
+       + `<span class="d">${d}</span><span class="sep">/</span>`
+       + `<span class="l">${l}</span></div>`;
+}
+
+/* Gesamtbilanz eines Spielers (Rangliste) */
+function recordHTML(u){
+  const st = u?.stats || {};
+  return recordBar(st.wins ?? 0, st.draws ?? 0, st.wrong ?? 0);
+}
+
+/* Meine persönliche Bilanz gegen genau diesen Gegner (Freundesliste) */
+function vsHTML(uid){
+  const v = profile?.vs?.[uid] || {};
+  return recordBar(v.w ?? 0, v.d ?? 0, v.l ?? 0);
+}
+
+function meLook(extra = {}){
+  return { photo: profile?.photo, badge: profile?.badge, frame: profile?.frame, ...extra };
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Hintergrundmusik (/musik.mp3) — läuft nur während eines Duells
+   ══════════════════════════════════════════════════════════════ */
+const bgm = $("bgm");
+const MUSIC_KEY = "imposter_music";
+const VOL_KEY = "imposter_music_vol";
+let musicVol = Math.min(1, Math.max(0, (Number(localStorage.getItem(VOL_KEY)) || 30) / 100));
+
+let musicOn = localStorage.getItem(MUSIC_KEY) !== "0";   // Standard: an
+let musicBroken = false;
+let inDuel = false;
+
+let actx = null, gainNode = null, unlocked = false;
+let fadeTimer = null;
+
+bgm.volume = 0;
+bgm.addEventListener("error", () => { musicBroken = true; renderMusicSwitch(); });
+
+/* iOS stummschaltet <audio>, nicht aber die Web Audio API. Deshalb läuft die
+   Musik durch einen AudioContext, und ein stummer Dauerton stellt die
+   Audio-Session auf "Wiedergabe" um. Damit klingt sie auch bei aktivem
+   Seitenschalter — solange sie hier in den Optionen eingeschaltet ist. */
+const SILENT_WAV = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+
+function unlockAudio(){
+  if (unlocked) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) { unlocked = true; return; }
+  try {
+    actx = new AC();
+    const src = actx.createMediaElementSource(bgm);
+    gainNode = actx.createGain();
+    gainNode.gain.value = 0;
+    src.connect(gainNode).connect(actx.destination);
+    bgm.volume = 1;                       // Lautstärke regelt ab jetzt der Gain
+  } catch(_){ actx = null; gainNode = null; }
+
+  try {
+    const tag = document.createElement("audio");
+    tag.src = SILENT_WAV; tag.loop = true; tag.preload = "auto";
+    tag.setAttribute("playsinline", "");
+    tag.volume = 0.001;
+    tag.play().catch(()=>{});
+  } catch(_){}
+
+  unlocked = true;
+}
+
+function setVolume(target, ms = 900, done){
+  if (gainNode && actx){
+    const t = actx.currentTime;
+    gainNode.gain.cancelScheduledValues(t);
+    gainNode.gain.setValueAtTime(gainNode.gain.value, t);
+    gainNode.gain.linearRampToValueAtTime(target, t + ms/1000);
+    if (done) setTimeout(done, ms + 60);
+    return;
+  }
+  clearInterval(fadeTimer);
+  const from = bgm.volume, steps = Math.max(1, Math.round(ms / 40));
+  let i = 0;
+  fadeTimer = setInterval(() => {
+    i++;
+    bgm.volume = Math.min(1, Math.max(0, from + (target - from) * (i / steps)));
+    if (i >= steps){ clearInterval(fadeTimer); if (done) done(); }
+  }, 40);
+}
+
+async function musicStart(){
+  if (!musicOn || musicBroken || !inDuel) return;
+  unlockAudio();
+  if (actx?.state === "suspended"){ try { await actx.resume(); } catch(_){} }
+  try { await bgm.play(); setVolume(musicVol, 900); }
+  catch(_){ /* Browser verlangt noch eine Geste */ }
+}
+function musicStop(){
+  setVolume(0, 450, () => { if (!(musicOn && inDuel)) bgm.pause(); });
+}
+
+/* Duell beginnt / endet */
+function musicEnterDuel(){ if (inDuel) return; inDuel = true; musicStart(); }
+function musicLeaveDuel(){ inDuel = false; musicStop(); }
+
+/* Erste Berührung entsperrt die Audioausgabe, startet aber noch nichts. */
+["pointerdown","keydown","touchstart"].forEach(ev =>
+  window.addEventListener(ev, unlockAudio, { once: true, passive: true }));
+
+/* Im Hintergrund pausieren, beim Zurückkommen weiterspielen */
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) bgm.pause();
+  else if (musicOn && inDuel && !musicBroken) musicStart();
+});
+
+function renderMusicSwitch(){
+  const b = $("btnMusic");
+  const on = musicOn && !musicBroken;
+  b.classList.toggle("on", on);
+  b.setAttribute("aria-checked", String(on));
+  b.disabled = musicBroken;
+  $("musicHint").textContent = musicBroken
+    ? "musik.mp3 wurde nicht gefunden."
+    : musicOn ? "Läuft während eines Duells." : "Ist ausgeschaltet.";
+}
+
+function renderVolume(){
+  const sl = $("volSlider");
+  const pct = Math.round(musicVol * 100);
+  sl.value = pct;
+  sl.style.setProperty("--p", pct + "%");
+  sl.disabled = musicBroken || !musicOn;
+  $("volLabel").textContent = pct + " %";
+}
+$("volSlider").oninput = e => {
+  musicVol = Number(e.target.value) / 100;
+  localStorage.setItem(VOL_KEY, String(Math.round(musicVol * 100)));
+  renderVolume();
+  if (musicOn && inDuel && !musicBroken) setVolume(musicVol, 120);
+};
+
+$("btnMusic").onclick = () => {
+  if (musicBroken) return;
+  musicOn = !musicOn;
+  localStorage.setItem(MUSIC_KEY, musicOn ? "1" : "0");
+  unlockAudio();
+  musicOn ? musicStart() : musicStop();
+  renderMusicSwitch();
+  renderVolume();
+};
+renderMusicSwitch();
+renderVolume();
+
+/* ══════════════════════════════════════════════════════════════
+   Hinweis zum Installieren
+   ══════════════════════════════════════════════════════════════ */
+const INSTALL_KEY = "imposter_install_weg";
+const SHARE_ICON =
+  '<svg class="share" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+  'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+  '<path d="M12 3v12"/><path d="M8 7l4-4 4 4"/>' +
+  '<path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
+let installPrompt = null;
+
+const istInstalliert = () =>
+  window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const istIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  installPrompt = e;
+  renderInstall();
+});
+window.addEventListener("appinstalled", () => {
+  installPrompt = null;
+  $("installCard").classList.add("hidden");
+});
+
+function renderInstall(){
+  const card = $("installCard");
+  const weg  = localStorage.getItem(INSTALL_KEY) === "1";
+  const zeigen = !istInstalliert() && !weg && (installPrompt || istIOS());
+  card.classList.toggle("hidden", !zeigen);
+  if (!zeigen) return;
+
+  if (installPrompt){
+    $("installText").textContent =
+      "Als App installieren — dann läuft sie im Vollbild und du bekommst Benachrichtigungen.";
+    $("installGo").classList.remove("hidden");
+  } else {
+    $("installText").innerHTML =
+      'Tippe unten auf ' + SHARE_ICON + ' <strong>Teilen</strong> und dann auf <strong>Zum Home-Bildschirm</strong>. ' +
+      'Nur so laufen Benachrichtigungen und das Vollbild.';
+    $("installGo").classList.add("hidden");
+  }
+}
+
+$("installGo").onclick = async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  try { await installPrompt.userChoice; } catch(_){}
+  installPrompt = null;
+  renderInstall();
+};
+$("installX").onclick = () => {
+  localStorage.setItem(INSTALL_KEY, "1");
+  $("installCard").classList.add("hidden");
+};
+
+/* Beim ersten Start als installierte App einmal nach Benachrichtigungen fragen.
+   Ein Browser darf die Erlaubnis nur nach einer Berührung erfragen — deshalb
+   die Karte mit Knopf statt eines automatischen Dialogs. */
+const PUSH_ASK_KEY = "imposter_push_gefragt";
+function renderPushAsk(){
+  const card = $("pushCard");
+  if (!card) return;
+  const zeigen = istInstalliert()
+    && pushMoeglich
+    && typeof Notification !== "undefined"
+    && Notification.permission === "default"
+    && localStorage.getItem(PUSH_ASK_KEY) !== "1"
+    && !!me;
+  card.classList.toggle("hidden", !zeigen);
+}
+$("pushCardGo").onclick = async () => {
+  localStorage.setItem(PUSH_ASK_KEY, "1");
+  await pushAnschalten();
+  renderPushAsk();
+};
+$("pushCardX").onclick = () => {
+  localStorage.setItem(PUSH_ASK_KEY, "1");
+  $("pushCard").classList.add("hidden");
+};
+
+/* ══════════════════════════════════════════════════════════════
+   Push-Benachrichtigungen
+   ══════════════════════════════════════════════════════════════ */
+let swReg = null, pushOn = false, pushMoeglich = false;
+
+async function initPush(){
+  try {
+    if (!("serviceWorker" in navigator)) return;
+    swReg = await navigator.serviceWorker.register("/sw.js");
+
+    // Meldungen, die ankommen, während die App offen ist
+    navigator.serviceWorker.addEventListener("message", e => {
+      if (e.data?.type === "push") toast(e.data.body || e.data.title);
+    });
+
+    pushMoeglich = await isSupported().catch(() => false);
+  } catch(_){ pushMoeglich = false; }
+  renderPushSwitch();
+  renderPushAsk();
+}
+initPush();
+
+function pushStatusText(){
+  if (!pushMoeglich) return "Dieser Browser unterstützt keine Push-Nachrichten.";
+  if (!window.matchMedia("(display-mode: standalone)").matches &&
+      /iPhone|iPad|iPod/.test(navigator.userAgent))
+    return "Auf dem iPhone erst zum Home-Bildschirm hinzufügen.";
+  if (Notification.permission === "denied") return "In den Browsereinstellungen blockiert.";
+  return pushOn ? "Nur wenn die App geschlossen oder im Hintergrund ist."
+                : "Aus — du erfährst nichts von Herausforderungen.";
+}
+function renderPushSwitch(){
+  const b = $("btnPush");
+  if (!b) return;
+  b.classList.toggle("on", pushOn);
+  b.setAttribute("aria-checked", String(pushOn));
+  b.disabled = !pushMoeglich || Notification.permission === "denied";
+  $("pushHint").textContent = pushStatusText();
+}
+
+async function pushAnschalten(){
+  if (!pushMoeglich || !swReg || !me) return;
+  try {
+    const erlaubt = await Notification.requestPermission();
+    if (erlaubt !== "granted"){ toast("Ohne Erlaubnis geht es nicht."); renderPushSwitch(); return; }
+    const messaging = getMessaging(app);
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+    if (!token) throw new Error("kein Token");
+    await updateDoc(userRef(me.uid), { pushTokens: arrayUnion(token) });
+    localStorage.setItem("imposter_push", token);
+    pushOn = true;
+    toast("Benachrichtigungen aktiv.");
+  } catch(e){
+    toast("Fehlgeschlagen: " + (e.code || e.message));
+    pushOn = false;
+  }
+  renderPushSwitch();
+}
+
+async function pushAusschalten(){
+  const token = localStorage.getItem("imposter_push");
+  if (token && me){
+    try { await updateDoc(userRef(me.uid), { pushTokens: arrayRemove(token) }); } catch(_){}
+  }
+  localStorage.removeItem("imposter_push");
+  pushOn = false;
+  renderPushSwitch();
+}
+
+/* Beim Start prüfen, ob dieses Gerät schon eingetragen ist */
+function pushStatusPruefen(){
+  const token = localStorage.getItem("imposter_push");
+  pushOn = !!token && (profile?.pushTokens || []).includes(token)
+        && typeof Notification !== "undefined" && Notification.permission === "granted";
+  renderPushSwitch();
+}
+
+/* Meldung an den Gegner schicken — scheitert still, nie das Spiel blockieren */
+async function push(to, kind, extra = {}){
+  if (!to || !me) return;
+  try {
+    const idToken = await me.getIdToken();
+    await fetch("/api/notify", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ idToken, to, kind, ...extra })
+    });
+  } catch(_){}
+}
+
+/* ---------- Tutorial ---------- */
+$("btnTutorial").onclick     = () => show("screen-tutorial");
+$("btnTutorialBack").onclick = () => show("screen-home");
+$("btnTutorialDone").onclick = () => show("screen-home");
+
+/* ══════════════════════════════════════════════════════════════
+   Trophäen
+   ══════════════════════════════════════════════════════════════ */
+const V = {
+  wins:   u => u?.stats?.wins  ?? 0,
+  games:  u => u?.stats?.games ?? 0,
+  streak: u => u?.bestStreak   ?? 0,
+  days:   u => u?.loginDays    ?? 0,
+  bonus:  u => u?.bonusHits    ?? 0,
+  gold:   u => u?.goldTotal    ?? 0,
+  buddies:u => (u?.friends || []).length
+};
+const TROPHIES = [
+  { g:"Siege", id:"w1",   ic:"🎯", nm:"Erster Treffer", need:1,   v:V.wins,   tx:"Gewinne eine Runde" },
+  { g:"Siege", id:"w10",  ic:"🥉", nm:"Aufgewärmt",     need:10,  v:V.wins,   tx:"Gewinne 10 Runden" },
+  { g:"Siege", id:"w25",  ic:"🥈", nm:"Routiniert",     need:25,  v:V.wins,   tx:"Gewinne 25 Runden" },
+  { g:"Siege", id:"w50",  ic:"🥇", nm:"Gefürchtet",     need:50,  v:V.wins,   tx:"Gewinne 50 Runden" },
+  { g:"Siege", id:"w100", ic:"👑", nm:"Legende",        need:100, v:V.wins,   tx:"Gewinne 100 Runden" },
+  { g:"Siege", id:"w250", ic:"🗿", nm:"Unantastbar",    need:250, v:V.wins,   tx:"Gewinne 250 Runden" },
+
+  { g:"Siegesserien", id:"s3",  ic:"🔗", nm:"Dreierpack",    need:3,  v:V.streak, tx:"3 Siege hintereinander" },
+  { g:"Siegesserien", id:"s5",  ic:"🚀", nm:"Im Lauf",       need:5,  v:V.streak, tx:"5 Siege hintereinander" },
+  { g:"Siegesserien", id:"s10", ic:"🌟", nm:"Unaufhaltsam",  need:10, v:V.streak, tx:"10 Siege hintereinander" },
+  { g:"Siegesserien", id:"s20", ic:"🌋", nm:"Naturgewalt",   need:20, v:V.streak, tx:"20 Siege hintereinander" },
+
+  { g:"Treue", id:"d3",   ic:"☕", nm:"Wiederkehrer",  need:3,   v:V.days, tx:"An 3 Tagen gespielt" },
+  { g:"Treue", id:"d7",   ic:"📆", nm:"Stammgast",     need:7,   v:V.days, tx:"An 7 Tagen gespielt" },
+  { g:"Treue", id:"d30",  ic:"🌙", nm:"Ein Monat",     need:30,  v:V.days, tx:"An 30 Tagen gespielt" },
+  { g:"Treue", id:"d100", ic:"🏛️", nm:"Hundert Tage",  need:100, v:V.days, tx:"An 100 Tagen gespielt" },
+
+  { g:"Wortjagd", id:"b1",  ic:"🧩", nm:"Gedankenleser", need:1,  v:V.bonus, tx:"Errate das Wort des Gegners" },
+  { g:"Wortjagd", id:"b10", ic:"🧠", nm:"Hellseher",     need:10, v:V.bonus, tx:"Errate 10 gegnerische Wörter" },
+  { g:"Wortjagd", id:"b50", ic:"🔮", nm:"Wortdieb",      need:50, v:V.bonus, tx:"Errate 50 gegnerische Wörter" },
+
+  { g:"Reichtum", id:"g250",  ic:"🪙", nm:"Sammler",      need:250,  v:V.gold, tx:"250 Gold verdient" },
+  { g:"Reichtum", id:"g1000", ic:"💎", nm:"Schatzmeister",need:1000, v:V.gold, tx:"1000 Gold verdient" },
+
+  { g:"Erfahrung", id:"p10",  ic:"🎲", nm:"Mitspieler",  need:10,  v:V.games, tx:"10 Runden gespielt" },
+  { g:"Erfahrung", id:"p50",  ic:"🎪", nm:"Vielspieler", need:50,  v:V.games, tx:"50 Runden gespielt" },
+  { g:"Erfahrung", id:"p200", ic:"🏟️", nm:"Dauergast",   need:200, v:V.games, tx:"200 Runden gespielt" },
+
+  { g:"Freundeskreis", id:"f3",  ic:"🤝", nm:"Gesellig",   need:3,  v:V.buddies, tx:"3 Freunde hinzugefügt" },
+  { g:"Freundeskreis", id:"f10", ic:"🌐", nm:"Netzwerker", need:10, v:V.buddies, tx:"10 Freunde hinzugefügt" }
+];
+const troById = id => TROPHIES.find(t => t.id === id);
+const troDone = (t, u) => t.v(u) >= t.need;
+const troCountOf = u => TROPHIES.filter(t => troDone(t, u)).length;
+
+/* Welches Item hängt an welcher Trophäe? */
+function unlockFor(troId){
+  const b = BADGES.find(x => x.unlock === troId);
+  if (b) return { kind:"Symbol", label:b.label, icon:b.icon };
+  const f = FRAMES.find(x => x.unlock === troId);
+  if (f) return { kind:"Rahmen", label:f.label };
+  return null;
+}
+/* Besitzt der Spieler ein Item — gekauft oder über eine Trophäe? */
+function hasItem(kind, it, u = profile){
+  if (it.unlock) return troDone(troById(it.unlock) || {v:()=>0,need:1}, u);
+  return (u?.owned || []).includes(kind + ":" + it.id);
+}
+
+function trophyLineHTML(u){
+  const t = troById(u?.trophy);
+  if (!t || !troDone(t, u)) return "";
+  return `<span class="ic">${t.ic}</span><span>${esc(t.nm)}</span>`;
+}
+
+$("btnTrophies").onclick     = () => { renderTrophies(); show("screen-trophies"); };
+$("btnTrophiesBack").onclick = () => show("screen-home");
+
+function renderTrophies(){
+  $("troTotal").textContent = TROPHIES.length;
+  $("troCount").textContent = troCountOf(profile);
+
+  const groups = [...new Set(TROPHIES.map(t => t.g))];
+  $("troList").innerHTML = groups.map(g => {
+    const all  = TROPHIES.filter(t => t.g === g);
+    // Erledigte plus genau die nächste — was danach kommt, bleibt eine Überraschung.
+    const idx  = all.findIndex(t => !troDone(t, profile));
+    const open = idx === -1 ? all.length : idx + 1;
+    const rest = all.length - open;
+    return `
+    <div class="card">
+      <h3>${esc(g)}</h3>
+      <div style="margin-top:6px">
+        ${all.slice(0, open).map(t => {
+          const cur  = t.v(profile);
+          const done = cur >= t.need;
+          const pct  = Math.min(100, Math.round(cur / t.need * 100));
+          const un   = unlockFor(t.id);
+          return `<div class="tro ${done?"done":""}">
+            <div class="tro-ic">${t.ic}</div>
+            <div class="grow">
+              <div class="tro-nm">${esc(t.nm)}</div>
+              <div class="tro-tx">${esc(t.tx)} · ${Math.min(cur, t.need)}/${t.need}</div>
+              ${done ? "" : `<div class="bar"><i style="width:${pct}%"></i></div>`}
+              ${un ? `<div class="unlocknote">Schaltet ${un.kind} „${esc(un.label)}" frei</div>` : ""}
+            </div>
+            ${done ? `<button class="tro-pick ${profile?.trophy===t.id?"on":""}" data-tro="${t.id}" aria-label="Im Profil zeigen">${profile?.trophy===t.id?"✓":""}</button>` : `<span class="tro-pick" style="opacity:.25">🔒</span>`}
+          </div>`;
+        }).join("")}
+        ${rest > 0 ? `<div class="tro"><div class="tro-ic">?</div><div class="grow"><div class="tro-nm">Noch ${rest} weitere</div><div class="tro-tx">Zeigen sich, sobald du die davor geschafft hast</div></div></div>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+
+  $("troList").querySelectorAll("[data-tro]").forEach(b => b.onclick = () => pickTrophy(b.dataset.tro));
+}
+
+async function pickTrophy(id){
+  const next = profile?.trophy === id ? "" : id;
+  try {
+    await updateDoc(userRef(me.uid), { trophy: next });
+    userCache.delete(me.uid);
+    renderTrophies();
+    toast(next ? "Trophäe im Profil gesetzt." : "Trophäe entfernt.");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Item-Shop und Inventar
+   ══════════════════════════════════════════════════════════════ */
+const gold  = () => profile?.gold ?? 0;
+const owned = () => profile?.owned ?? [];
+
+function framePreview(id){
+  return `<span class="avaWrap ${id ? "fr-" + id : ""}"><span class="ava ring"></span></span>`;
+}
+
+$("btnShop").onclick        = () => { renderShop(); show("screen-shop"); };
+$("btnShopBack").onclick    = () => show("screen-home");
+$("btnInventory").onclick   = () => { renderInventory(); show("screen-inventory"); };
+$("btnInventoryBack").onclick = () => show("screen-options");
+$("btnToShopFromInv").onclick = () => { renderShop(); show("screen-shop"); };
+
+function renderShop(){
+  $("shopGold").textContent = gold();
+  const have = owned();
+
+  $("shopBadges").innerHTML = BADGES.filter(b => !b.unlock).map(b => {
+    const mine = have.includes("b:" + b.id);
+    const poor = !mine && gold() < b.price;
+    return `<button class="item ${mine?"owned":""} ${poor?"poor":""}" data-buy="b:${b.id}" ${mine?"disabled":""}>
+      <div class="prev">${b.icon}</div>
+      <span class="nm">${esc(b.label)}</span>
+      <span class="pr">${mine ? "im Besitz" : b.price + " Gold"}</span>
+    </button>`;
+  }).join("");
+
+  $("shopFrames").innerHTML = FRAMES.filter(f => !f.unlock).map(f => {
+    const mine = have.includes("f:" + f.id);
+    const poor = !mine && gold() < f.price;
+    return `<button class="item ${mine?"owned":""} ${poor?"poor":""}" data-buy="f:${f.id}" ${mine?"disabled":""}>
+      ${framePreview(f.id)}
+      <span class="nm">${esc(f.label)}</span>
+      <span class="pr">${mine ? "im Besitz" : f.price + " Gold"}</span>
+    </button>`;
+  }).join("");
+
+  document.querySelectorAll("[data-buy]").forEach(b => b.onclick = () => buyItem(b.dataset.buy));
+}
+
+function priceOf(key){
+  const [kind, id] = key.split(":");
+  const it = kind === "b" ? badgeById(id) : frameById(id);
+  return it ? it.price : Infinity;
+}
+
+async function buyItem(key){
+  if (owned().includes(key)) return;
+  const price = priceOf(key);
+  if (gold() < price){ toast(`Dir fehlen noch ${price - gold()} Gold.`); return; }
+  try {
+    await updateDoc(userRef(me.uid), { gold: increment(-price), owned: arrayUnion(key) });
+    toast("Gekauft. Anlegen kannst du es im Inventar.");
+  } catch(e){ toast("Kauf fehlgeschlagen: " + (e.code || e.message)); }
+}
+
+function renderInventory(){
+  $("invPreview").innerHTML = avaHTML(meLook(), "lg");
+
+  const myBadges = BADGES.filter(b => hasItem("b", b));
+  $("invBadges").innerHTML =
+    `<button class="item ${!profile?.badge ? "sel" : ""}" data-eq="badge:">
+       <div class="prev">—</div><span class="nm">Keins</span></button>` +
+    myBadges.map(b => `<button class="item ${profile?.badge===b.id?"sel":""}" data-eq="badge:${b.id}">
+       <div class="prev">${b.icon}</div><span class="nm">${esc(b.label)}</span></button>`).join("");
+
+  const myFrames = FRAMES.filter(f => hasItem("f", f));
+  $("invFrames").innerHTML =
+    `<button class="item ${!profile?.frame ? "sel" : ""}" data-eq="frame:">
+       ${framePreview("")}<span class="nm">Keiner</span></button>` +
+    myFrames.map(f => `<button class="item ${profile?.frame===f.id?"sel":""}" data-eq="frame:${f.id}">
+       ${framePreview(f.id)}<span class="nm">${esc(f.label)}</span></button>`).join("");
+
+  document.querySelectorAll("[data-eq]").forEach(b => b.onclick = () => {
+    const [slot, id] = b.dataset.eq.split(":");
+    equipItem(slot, id);
+  });
+
+  const old = $("invEmpty"); if (old) old.remove();
+  if (!myBadges.length && !myFrames.length){
+    $("invBadges").insertAdjacentHTML("afterend",
+      `<p class="dim" id="invEmpty" style="font-size:.85rem;margin-top:12px">Noch nichts gekauft — im Item-Shop gibt es Symbole ab 60 Gold.</p>`);
+  }
+}
+
+async function equipItem(slot, id){
+  try {
+    await updateDoc(userRef(me.uid), { [slot]: id || "" });
+    userCache.delete(me.uid);
+    renderInventory();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Adminfenster
+   ══════════════════════════════════════════════════════════════ */
+let adminUids = new Set();
+let pairCache = [];
+let newPairLevel = 2;
+
+const isRootAdmin = u => (u?.usernameLower || "") === ROOT_ADMIN;
+const amAdmin = () => !!me && (isRootAdmin(profile) || adminUids.has(me.uid));
+
+async function loadAdmins(){
+  try {
+    const snap = await getDocs(collection(db, "admins"));
+    adminUids = new Set(snap.docs.map(d => d.id));
+  } catch(_){ adminUids = new Set(); }
+  $("adminCard").classList.toggle("hidden", !amAdmin());
+}
+
+$("btnAdmin").onclick    = async () => {
+  if (!amAdmin()){ toast("Kein Zugriff."); return; }
+  renderNewPairForm();
+  show("screen-admin");
+  await loadUsers();
+  await loadPairs();
+  await renderAdminList();
+};
+
+/* ---------- Benutzer, Statistik, Geschenke ---------- */
+let allUsers = [];
+
+function statBox(n, l, color){
+  return `<div class="stat"><div class="n"${color?` style="color:${color}"`:""}>${n}</div><div class="l">${esc(l)}</div></div>`;
+}
+
+async function loadUsers(){
+  try {
+    const snap = await getDocs(collection(db, "users"));
+    allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  } catch(e){
+    $("userList").innerHTML = `<div class="empty">Fehler: ${esc(e.code || e.message)}</div>`;
+    return;
+  }
+  renderAdminStats();
+  renderUsers();
+  renderGiftForm();
+}
+
+function renderAdminStats(){
+  const sum = f => allUsers.reduce((n, u) => n + (f(u) || 0), 0);
+  const rounds = Math.round(sum(u => u.stats?.games ?? 0) / 2);
+  const wins   = sum(u => u.stats?.wins  ?? 0);
+  const losses = sum(u => u.stats?.wrong ?? 0);
+  const tips   = wins + losses;
+  const today  = new Date().toLocaleDateString("sv-SE");
+  const active = allUsers.filter(u => u.lastLogin === today).length;
+  const week   = allUsers.filter(u => {
+    if (!u.lastLogin) return false;
+    return (Date.now() - new Date(u.lastLogin).getTime()) < 7 * 864e5;
+  }).length;
+  const troSum = allUsers.reduce((n, u) => n + troCountOf(u), 0);
+  const best   = allUsers.reduce((m, u) => Math.max(m, u.bestStreak ?? 0), 0);
+
+  $("admStats1").innerHTML =
+    statBox(allUsers.length, "Benutzer") +
+    statBox(rounds, "Runden gesamt", "var(--yellow)");
+
+  $("admStats2").innerHTML =
+    statBox(wins, "richtige Tipps", "var(--ok)") +
+    statBox(losses, "falsche Tipps", "var(--magenta)") +
+    statBox(tips ? Math.round(wins / tips * 100) + " %" : "—", "Trefferquote");
+
+  $("admStats3").innerHTML =
+    statBox(active, "heute aktiv") +
+    statBox(week, "diese Woche") +
+    statBox(best, "längste Serie");
+}
+
+function renderUsers(){
+  const term = $("userSearch").value.trim().toLowerCase();
+  const rows = (term ? allUsers.filter(u => (u.username || "").toLowerCase().includes(term)) : allUsers)
+    .slice()
+    .sort((a, b) => (b.stats?.games ?? 0) - (a.stats?.games ?? 0));
+  $("userCount").textContent = `${rows.length}${term ? " / " + allUsers.length : ""}`;
+  $("userList").innerHTML = rows.length ? rows.map(u => {
+    const st = u.stats || {};
+    return `<div class="row-item">
+      ${avaHTML(u)}
+      <div class="grow">
+        <div class="name">${esc(u.username || "ohne Namen")}${adminUids.has(u.uid) || (u.usernameLower === ROOT_ADMIN) ? `<span class="adminbadge">Admin</span>` : ""}</div>
+        <div class="record"><span class="w">${st.wins ?? 0}</span><span class="sep">/</span><span class="d">${st.draws ?? 0}</span><span class="sep">/</span><span class="l">${st.wrong ?? 0}</span>
+          <span style="color:var(--muted)"> · ${u.gold ?? 0} Gold · ${troCountOf(u)} Trophäen</span></div>
+        <div class="meta" style="font-family:var(--mono);font-size:.64rem;color:var(--muted);margin-top:2px">
+          ${st.games ?? 0} Runden · ${u.loginDays ?? 0} Tage · zuletzt ${esc(u.lastLogin || "—")}
+        </div>
+      </div>
+    </div>`;
+  }).join("") : `<div class="empty">Niemand gefunden.</div>`;
+}
+$("userSearch").addEventListener("input", renderUsers);
+
+function renderGiftForm(){
+  $("giftUser").innerHTML = allUsers
+    .slice().sort((a, b) => (a.username || "").localeCompare(b.username || ""))
+    .map(u => `<option value="${esc(u.uid)}">${esc(u.username || u.uid.slice(0,8))}</option>`).join("");
+  $("giftItem").innerHTML =
+    `<optgroup label="Symbole">` +
+    BADGES.map(b => `<option value="b:${b.id}">${b.icon} ${esc(b.label)}${b.unlock ? " (Trophäe)" : ""}</option>`).join("") +
+    `</optgroup><optgroup label="Rahmen">` +
+    FRAMES.map(f => `<option value="f:${f.id}">${esc(f.label)}${f.unlock ? " (Trophäe)" : ""}</option>`).join("") +
+    `</optgroup>`;
+}
+
+$("btnGiftItem").onclick = async () => {
+  const uid = $("giftUser").value, key = $("giftItem").value;
+  if (!uid || !key) return;
+  const btn = $("btnGiftItem"); btn.disabled = true;
+  try {
+    await updateDoc(userRef(uid), { owned: arrayUnion(key) });
+    userCache.delete(uid);
+    toast("Item verschenkt.");
+    await loadUsers();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+$("btnGiftGold").onclick = async () => {
+  const uid = $("giftUser").value;
+  const amount = parseInt($("giftGold").value, 10);
+  if (!uid || !Number.isFinite(amount) || amount === 0){ toast("Gib einen Betrag ein."); return; }
+  const btn = $("btnGiftGold"); btn.disabled = true;
+  try {
+    await updateDoc(userRef(uid), { gold: increment(amount), goldTotal: increment(Math.max(0, amount)) });
+    $("giftGold").value = "";
+    toast(`${amount} Gold gesendet.`);
+    await loadUsers();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+$("btnAdminBack").onclick = () => show("screen-options");
+$("btnPairReload").onclick = () => loadPairs();
+
+async function loadPairs(){
+  $("pairList").innerHTML = `<div class="empty">Wird geladen …</div>`;
+  try {
+    const q = query(collection(db, "wordpairs"), orderBy("lastAt", "desc"), limit(500));
+    const snap = await getDocs(q);
+    pairCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e){
+    $("pairList").innerHTML = `<div class="empty">Fehler: ${esc(e.code || e.message)}</div>`;
+    return;
+  }
+  renderPairs();
+}
+
+function renderPairs(){
+  const term = $("pairSearch").value.trim().toLowerCase();
+  const rows = term
+    ? pairCache.filter(p => (p.a + " " + p.b + " " + (p.category || "")).toLowerCase().includes(term))
+    : pairCache;
+  $("pairCount").textContent = `${rows.length}${term ? " / " + pairCache.length : ""}`;
+  $("pairList").innerHTML = rows.length ? rows.map(p => `
+    <div class="pair">
+      <div class="grow">
+        <div class="ws">${esc(p.a)}<em>↔</em>${esc(p.b)}</div>
+        <div class="meta">${esc(p.category || "ohne Kategorie")} · Stufe ${p.difficulty ?? 2} · ${p.uses ?? 1}× · ${p.source === "manual" ? "manuell" : p.source === "fallback" ? "Notfallliste" : "API"}</div>
+      </div>
+      <button class="del" data-del="${esc(p.id)}" aria-label="Löschen">×</button>
+    </div>`).join("") : `<div class="empty">Nichts gefunden.</div>`;
+
+  $("pairList").querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    try {
+      await deleteDoc(doc(db, "wordpairs", b.dataset.del));
+      pairCache = pairCache.filter(p => p.id !== b.dataset.del);
+      renderPairs();
+    } catch(e){ toast("Löschen fehlgeschlagen: " + (e.code || e.message)); }
+  });
+}
+$("pairSearch").addEventListener("input", renderPairs);
+
+$("btnPairExport").onclick = () => {
+  const data = pairCache.map(p => ({
+    a: p.a, b: p.b, category: p.category || null,
+    difficulty: p.difficulty ?? 2, uses: p.uses ?? 1, source: p.source || "api"
+  }));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wortpaare-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`${data.length} Paare exportiert.`);
+};
+
+function renderNewPairForm(){
+  const sel = $("newCat");
+  if (!sel.options.length){
+    sel.innerHTML = `<option value="">Ohne Kategorie</option>` +
+      CATEGORIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+  $("newLevel").innerHTML = LEVELS.map(l =>
+    `<button class="level ${newPairLevel===l.n?"on":""}" data-nl="${l.n}">
+       <div class="n">${l.n}</div><div class="t">${l.t}</div></button>`).join("");
+  $("newLevel").querySelectorAll("[data-nl]").forEach(b => b.onclick = () => {
+    newPairLevel = Number(b.dataset.nl); renderNewPairForm();
+  });
+}
+
+$("btnPairAdd").onclick = async () => {
+  const a = $("newA").value.trim(), b = $("newB").value.trim();
+  if (!a || !b){ toast("Beide Wörter eingeben."); return; }
+  if (a.toLowerCase() === b.toLowerCase()){ toast("Die Wörter müssen verschieden sein."); return; }
+  const btn = $("btnPairAdd"); btn.disabled = true;
+  try {
+    const key = pairKey(a, b);
+    await setDoc(doc(db, "wordpairs", key), {
+      a, b, key,
+      category: $("newCat").value || null,
+      difficulty: newPairLevel,
+      source: "manual",
+      uses: 0,
+      firstAt: serverTimestamp(),
+      lastAt: serverTimestamp()
+    }, { merge: true });
+    $("newA").value = ""; $("newB").value = "";
+    toast("Paar gespeichert.");
+    await loadPairs();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+async function renderAdminList(){
+  const entries = [];
+  if (profile && isRootAdmin(profile)) entries.push({ uid: me.uid, username: profile.username, root: true });
+  for (const uid of adminUids){
+    if (entries.some(e => e.uid === uid)) continue;
+    const u = await getUser(uid);
+    entries.push({ uid, username: u?.username || uid.slice(0,8), root: false });
+  }
+  $("adminList").innerHTML = entries.map(e => `
+    <div class="row-item">
+      <div class="grow">
+        <div class="name">${esc(e.username)}${e.root ? `<span class="adminbadge">Gründer</span>` : ""}</div>
+      </div>
+      ${e.root ? "" : `<button class="btn sm ghost" data-unadmin="${esc(e.uid)}">Entziehen</button>`}
+    </div>`).join("") || `<div class="empty">Noch niemand ernannt.</div>`;
+
+  $("adminList").querySelectorAll("[data-unadmin]").forEach(b => b.onclick = async () => {
+    try {
+      await deleteDoc(doc(db, "admins", b.dataset.unadmin));
+      adminUids.delete(b.dataset.unadmin);
+      await renderAdminList();
+    } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  });
+}
+
+$("btnAdminAdd").onclick = async () => {
+  const name = $("adminUser").value.trim().toLowerCase();
+  if (!name) return;
+  const btn = $("btnAdminAdd"); btn.disabled = true;
+  try {
+    const s = await getDoc(doc(db, "usernames", name));
+    if (!s.exists()){ toast("Diesen Benutzernamen gibt es nicht."); return; }
+    const uid = s.data().uid;
+    await setDoc(doc(db, "admins", uid), {
+      username: name, addedBy: profile.username, addedAt: serverTimestamp()
+    });
+    adminUids.add(uid);
+    $("adminUser").value = "";
+    toast("Adminrechte vergeben.");
+    await renderAdminList();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+/* ---------- Optionen ---------- */
+let optPhoto = null;
+
+$("btnOptions").onclick = () => {
+  optPhoto = null;
+  $("optAva").src = profile?.photo || AVA_FALLBACK;
+  $("optName").textContent = profile?.username || "—";
+  $("optSave").disabled = true;
+  $("optSave").textContent = "Speichern";
+  renderMusicSwitch();
+  renderVolume();
+  pushStatusPruefen();
+  show("screen-options");
+};
+$("btnOptionsBack").onclick = () => show("screen-home");
+$("btnPush").onclick = () => { pushOn ? pushAusschalten() : pushAnschalten(); };
+$("btnResetRecord").onclick = async () => {
+  const btn = $("btnResetRecord");
+  if (btn.dataset.armed !== "1"){
+    btn.dataset.armed = "1";
+    btn.textContent = "Wirklich zurücksetzen?";
+    setTimeout(() => { btn.dataset.armed = ""; btn.textContent = "Bilanz zurücksetzen"; }, 5000);
+    return;
+  }
+  btn.dataset.armed = ""; btn.textContent = "Bilanz zurücksetzen";
+  try {
+    await updateDoc(userRef(me.uid), {
+      "stats.wins": 0, "stats.draws": 0, "stats.wrong": 0, "stats.games": 0, vs: {}
+    });
+    userCache.delete(me.uid);
+    toast("Bilanz zurückgesetzt.");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+};
+$("optPickPhoto").onclick = () => $("optFile").click();
+$("optFile").onchange = async e => {
+  const file = e.target.files?.[0]; if (!file) return;
+  try {
+    optPhoto = await resizeImage(file, 256);
+    $("optAva").src = optPhoto;
+    $("optSave").disabled = false;
+  } catch(_){ toast("Bild konnte nicht gelesen werden."); }
+  e.target.value = "";
+};
+$("optSave").onclick = async () => {
+  if (!optPhoto) return;
+  const btn = $("optSave"); btn.disabled = true; btn.textContent = "Wird gespeichert …";
+  try {
+    await updateDoc(userRef(me.uid), { photo: optPhoto });
+    userCache.clear();
+    optPhoto = null;
+    toast("Profilbild aktualisiert.");
+    show("screen-home");
+  } catch(e){
+    toast("Fehler: " + (e.code || e.message));
+    btn.disabled = false; btn.textContent = "Speichern";
+  }
+};
+
+/* ---------- Freunde ---------- */
+async function getUser(uid){
+  if (userCache.has(uid)) return userCache.get(uid);
+  const s = await getDoc(userRef(uid));
+  const d = s.exists() ? s.data() : null;
+  if (d) userCache.set(uid, d);
+  return d;
+}
+
+async function loadFriends(){
+  const ids = profile.friends || [];
+  $("friendCount").textContent = ids.length;
+  const list = $("friendList");
+  if (!ids.length){ list.innerHTML = `<div class="empty">Noch niemand hier. Füge unten einen Benutzernamen hinzu.</div>`; return; }
+
+  const users = (await Promise.all(ids.map(getUser))).filter(Boolean);
+  const busy = !!profile.activeGameId;
+  list.innerHTML = users.map(u => `
+    <div class="row-item">
+      <button class="avaLink" data-profile="${esc(u.uid)}" aria-label="Profil von ${esc(u.username)}">${avaHTML(u)}</button>
+      <div class="grow">
+        <div class="name">${esc(u.username)}</div>
+        ${vsHTML(u.uid)}
+      </div>
+      <button class="btn sm yellow" data-challenge="${esc(u.uid)}" ${busy?"disabled":""} style="white-space:nowrap">Herausfordern</button>
+      <button class="iconbtn box" data-setup="${esc(u.uid)}" ${busy?"disabled":""} aria-label="Erweitertes Duell" title="Erweitertes Duell">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>`).join("");
+
+  list.querySelectorAll("[data-challenge]").forEach(b => b.onclick = () => challenge(b.dataset.challenge));
+  list.querySelectorAll("[data-setup]").forEach(b => b.onclick = () => openSetup(b.dataset.setup));
+  list.querySelectorAll("[data-profile]").forEach(b => b.onclick = () => openFriend(b.dataset.profile));
+}
+
+$("btnAddFriend").onclick = async () => {
+  const raw = $("addUsername").value.trim().toLowerCase();
+  if (!raw) return;
+  if (raw === profile.usernameLower){ toast("Das bist du selbst."); return; }
+  const btn = $("btnAddFriend"); btn.disabled = true;
+  try {
+    const s = await getDoc(doc(db,"usernames",raw));
+    if (!s.exists()){ toast("Diesen Benutzernamen gibt es nicht."); return; }
+    const fuid = s.data().uid;
+    if ((profile.friends||[]).includes(fuid)){ toast("Ihr seid schon Freunde."); return; }
+    await updateDoc(userRef(me.uid), { friends: arrayUnion(fuid) });
+    await updateDoc(userRef(fuid),   { friends: arrayUnion(me.uid) });
+    $("addUsername").value = "";
+    toast("Freund hinzugefügt.");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+/* ══════════════════════════════════════════════════════════════
+   Spielmodus: "live" (Hinweise mündlich) oder "chat" (getippt)
+   ══════════════════════════════════════════════════════════════ */
+const MODE_KEY = "imposter_mode";
+const MODES = ["live", "chat", "arcade"];
+let uiMode = MODES.includes(localStorage.getItem(MODE_KEY)) ? localStorage.getItem(MODE_KEY) : "live";
+const modeOf = g => (MODES.includes(g?.mode) ? g.mode : "live");
+const istArcade = g => modeOf(g) === "arcade";
+
+function renderMode(){
+  $("modeSeg").querySelectorAll("[data-mode]").forEach(b =>
+    b.classList.toggle("on", b.dataset.mode === uiMode));
+}
+$("modeSeg").querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
+  uiMode = b.dataset.mode;
+  localStorage.setItem(MODE_KEY, uiMode);
+  renderMode();
+});
+renderMode();
+
+/* ---------- Freundesprofil ---------- */
+let friendView = null;
+
+function dateDE(ts){
+  try {
+    const d = ts?.toDate ? ts.toDate() : (ts?.seconds ? new Date(ts.seconds * 1000) : null);
+    if (!d) return null;
+    return d.toLocaleDateString("de-DE", { day:"numeric", month:"long", year:"numeric" });
+  } catch(_){ return null; }
+}
+
+async function openFriend(uid){
+  const snap = await getDoc(userRef(uid));
+  if (!snap.exists()){ toast("Profil nicht gefunden."); return; }
+  const u = snap.data();
+  userCache.set(uid, u);
+  friendView = u;
+
+  $("frAva").innerHTML = avaHTML(u, "lg");
+  $("frName").textContent = u.username;
+  const since = dateDE(u.createdAt);
+  $("frSince").textContent = since ? `Dabei seit ${since}` : "Beitrittsdatum unbekannt";
+  $("frVs").innerHTML = vsHTML(uid);
+  $("frTrophy").innerHTML = trophyLineHTML(u);
+
+  const st = u.stats || {};
+  $("frGames").textContent  = st.games ?? 0;
+  $("frPoints").textContent = st.points ?? 0;
+  const tips = (st.points ?? 0) + (st.wrong ?? 0);
+  $("frRate").textContent = tips ? Math.round(((st.points ?? 0) / tips) * 100) + " %" : "—";
+
+  const busy = !!profile.activeGameId;
+  $("frChallenge").disabled = busy;
+  $("frSetup").disabled = busy;
+  const rm = $("frRemove");
+  rm.dataset.armed = ""; rm.textContent = "Freund entfernen";
+
+  show("screen-friend");
+}
+
+$("btnFriendBack").onclick = () => show("screen-home");
+$("frChallenge").onclick = () => { if (friendView) challenge(friendView.uid); };
+$("frSetup").onclick     = () => { if (friendView) openSetup(friendView.uid); };
+$("frRemove").onclick = async () => {
+  if (!friendView) return;
+  const rm = $("frRemove");
+  if (rm.dataset.armed !== "1"){
+    rm.dataset.armed = "1";
+    rm.textContent = `${friendView.username} wirklich entfernen?`;
+    setTimeout(() => { rm.dataset.armed = ""; rm.textContent = "Freund entfernen"; }, 5000);
+    return;
+  }
+  const uid = friendView.uid;
+  try {
+    await updateDoc(userRef(me.uid), { friends: arrayRemove(uid) });
+    // beidseitig — scheitert das an den Regeln, bleibt die eigene Liste trotzdem sauber
+    try { await updateDoc(userRef(uid), { friends: arrayRemove(me.uid) }); } catch(_){}
+    userCache.delete(uid);
+    friendView = null;
+    toast("Freund entfernt.");
+    show("screen-home");
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+};
+
+/* ---------- Einladungen ---------- */
+function renderInvites(invites){
+  const card = $("invitesCard"), list = $("invitesList");
+  if (!invites.length){ card.classList.add("hidden"); return; }
+  card.classList.remove("hidden");
+  list.innerHTML = invites.map(i => `
+    <div class="row-item">
+      ${avaHTML({ photo: i.fromPhoto, badge: i.fromBadge, frame: i.fromFrame })}
+      <div class="grow">
+        <div class="name">${esc(i.fromName)}</div>
+        <div class="sub">${esc(i.configLabel || "fordert dich heraus")}</div>
+      </div>
+      <button class="btn sm yellow" data-accept="${esc(i.gameId)}">Annehmen</button>
+      <button class="btn sm ghost" data-decline="${esc(i.gameId)}">Nein</button>
+    </div>`).join("");
+  list.querySelectorAll("[data-accept]").forEach(b => b.onclick = () => acceptChallenge(b.dataset.accept, b));
+  list.querySelectorAll("[data-decline]").forEach(b => b.onclick = () => declineChallenge(b.dataset.decline));
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7) Duell: erstellen, annehmen, ablehnen
+   ══════════════════════════════════════════════════════════════ */
+/* ---------- Erweitertes Duell: Kategorien & Stufen ---------- */
+const CATEGORIES = [
+  "Tiere","Essen & Trinken","Getränke","Berufe","Länder & Städte","Sport",
+  "Musik","Filme & Serien","Natur & Wetter","Werkzeug","Kleidung","Fahrzeuge",
+  "Wohnen & Möbel","Fantasy & Märchen","Technik","Schule & Büro","Feiern & Feste",
+  "Meer & Schiffe","Weltraum","Garten & Pflanzen","Spielzeug","Körper","Geschichte","Alltag"
+];
+const LEVELS = [
+  { n:1, t:"Leicht",  desc:"Gleiche Oberkategorie, aber deutlich verschieden — etwa Hund und Elefant. Der Imposter fällt schnell auf." },
+  { n:2, t:"Normal",  desc:"Eng verwandt, wie Kaffee und Tee. Ein paar Hinweise braucht es schon." },
+  { n:3, t:"Schwer",  desc:"Sehr nah beieinander, etwa Espresso und Cappuccino. Hier wird geblufft." },
+  { n:4, t:"Brutal",  desc:"Kaum zu trennen, wie Cappuccino und Latte Macchiato. Vertrauen hilft nicht mehr." }
+];
+
+let setupOpp = null;
+let setupCat = "";        // leer = zufällig
+let setupLevel = 2;
+
+function openSetup(uid){
+  if (profile.activeGameId){ toast("Du bist schon in einer Runde."); return; }
+  getUser(uid).then(u => {
+    if (!u){ toast("Spieler nicht gefunden."); return; }
+    setupOpp = u;
+    $("setupAvaBox").innerHTML = avaHTML(u, "xl");
+    $("setupName").textContent = u.username;
+    renderSetup();
+    show("screen-setup");
+  });
+}
+
+function renderSetup(){
+  const sel = $("catSelect");
+  sel.innerHTML = `<option value="">Zufällig</option>` +
+    CATEGORIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  sel.value = setupCat;
+  sel.onchange = () => { setupCat = sel.value; };
+
+  $("levelPicker").innerHTML = LEVELS.map(l =>
+    `<button class="level ${setupLevel===l.n?"on":""}" data-lvl="${l.n}">
+       <div class="n">${l.n}</div><div class="t">${l.t}</div>
+     </button>`).join("");
+  $("levelPicker").querySelectorAll("[data-lvl]").forEach(b => b.onclick = () => {
+    setupLevel = Number(b.dataset.lvl); renderSetup();
+  });
+
+  $("levelDesc").textContent = LEVELS.find(l => l.n === setupLevel).desc;
+}
+
+$("btnSetupBack").onclick = () => show("screen-home");
+$("btnSendSetup").onclick = () => {
+  if (!setupOpp) return;
+  challenge(setupOpp.uid, { category: setupCat || null, difficulty: setupLevel });
+};
+
+function configLabel(cfg){
+  if (!cfg) return "";
+  const lvl = LEVELS.find(l => l.n === cfg.difficulty);
+  const catTxt = cfg.category ? cfg.category : "Zufällige Kategorie";
+  return `${catTxt} · Stufe ${cfg.difficulty} ${lvl ? lvl.t : ""}`.trim();
+}
+function modeLabel(mode){ return mode === "chat" ? "Online" : mode === "arcade" ? "Arcade" : "Lokal"; }
+
+async function challenge(oppUid, config = null){
+  if (profile.activeGameId){ toast("Du bist schon in einer Runde."); return; }
+  const opp = await getUser(oppUid);
+  if (!opp){ toast("Spieler nicht gefunden."); return; }
+
+  const gameRef = doc(collection(db,"games"));
+  try {
+    await setDoc(gameRef, {
+      players: [me.uid, oppUid],
+      challenger: me.uid,
+      opponent: oppUid,
+      names: {
+        [me.uid]: { username: profile.username, photo: profile.photo || "", badge: profile.badge || "", frame: profile.frame || "" },
+        [oppUid]: { username: opp.username,     photo: opp.photo || "",     badge: opp.badge || "",     frame: opp.frame || "" }
+      },
+      status: "pending",
+      mode: uiMode,
+      config: config || null,
+      createdAt: serverTimestamp()
+    });
+    await setDoc(doc(db,"users",oppUid,"invites",gameRef.id), {
+      gameId: gameRef.id, from: me.uid,
+      fromName: profile.username, fromPhoto: profile.photo || "",
+      fromBadge: profile.badge || "", fromFrame: profile.frame || "",
+      configLabel: [modeLabel(uiMode), configLabel(config)].filter(Boolean).join(" · "),
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(userRef(me.uid), { activeGameId: gameRef.id });
+    push(oppUid, "challenge");
+    $("waitText").textContent = `Warte auf ${opp.username} …`;
+    show("screen-waiting");
+    watchGame(gameRef.id);
+  } catch(e){ toast("Duell konnte nicht gestartet werden: " + (e.code||e.message)); }
+}
+
+$("btnCancelChallenge").onclick = async () => {
+  if (!currentGameId) return;
+  const gid = currentGameId, opp = currentGame?.opponent;
+  try {
+    await updateDoc(doc(db,"games",gid), { status:"cancelled" });
+    if (opp) await deleteDoc(doc(db,"users",opp,"invites",gid));
+  } catch(_){}
+  await leaveGame();
+};
+
+async function acceptChallenge(gid, btn){
+  if (btn){ btn.disabled = true; btn.textContent = "Startet …"; }
+  try {
+    const gSnap = await getDoc(doc(db,"games",gid));
+    if (!gSnap.exists() || gSnap.data().status !== "pending"){
+      toast("Diese Herausforderung ist nicht mehr aktiv.");
+      await deleteDoc(doc(db,"users",me.uid,"invites",gid)).catch(()=>{});
+      return;
+    }
+    const g = gSnap.data();
+    const avoid = await collectRecentWords(g.challenger, g.opponent);
+    const words = await fetchWordPair(avoid, g.config);
+    const starter = Math.random() < 0.5 ? g.challenger : g.opponent;
+
+    // Arcade würfelt zu je einem Drittel: gleich, ähnlich, oder einer ohne Wort.
+    let kind, blank = "", wA, wB;
+    if (modeOf(g) === "arcade"){
+      const a = words.pair?.a || words.wordA;
+      const b = words.pair?.b || words.wordB;
+      const r = Math.random();
+      if (r < 1/3){ kind = "same";    wA = a; wB = a; }
+      else if (r < 2/3){ kind = "similar"; wA = a; wB = b; }
+      else {
+        kind  = "blank";
+        blank = Math.random() < 0.5 ? g.challenger : g.opponent;
+        wA = blank === g.challenger ? "" : a;
+        wB = blank === g.opponent   ? "" : a;
+      }
+    } else {
+      kind = words.same ? "same" : "similar";
+      wA = words.wordA; wB = words.wordB;
+    }
+    const istGleich = kind === "same";
+
+    await setDoc(doc(db,"games",gid,"secrets",g.challenger), { word: wA });
+    await setDoc(doc(db,"games",gid,"secrets",g.opponent),   { word: wB });
+    await setDoc(doc(db,"games",gid,"secrets","verdict"), { same: istGleich, kind, blank });
+    await setDoc(doc(db,"games",gid,"secrets","result"), {
+      same: istGleich, kind, blank,
+      words: { [g.challenger]: wA, [g.opponent]: wB }
+    });
+    await updateDoc(doc(db,"games",gid), {
+      status:"active", starter, turn: starter, hints: [], startedAt: serverTimestamp()
+    });
+    await updateDoc(userRef(me.uid), { activeGameId: gid });
+    await deleteDoc(doc(db,"users",me.uid,"invites",gid));
+    logWordPair(words.pair, { category: words.category, difficulty: g.config?.difficulty ?? 2 });
+    push(g.challenger, "accepted");
+    watchGame(gid);
+  } catch(e){
+    toast("Start fehlgeschlagen: " + (e.code || e.message));
+    if (btn){ btn.disabled = false; btn.textContent = "Annehmen"; }
+  }
+}
+
+async function declineChallenge(gid){
+  try {
+    await updateDoc(doc(db,"games",gid), { status:"declined" });
+    await deleteDoc(doc(db,"users",me.uid,"invites",gid));
+  } catch(e){ toast("Fehler: " + (e.code||e.message)); }
+}
+
+/* ---------- Wörter von der Anthropic-API ---------- */
+const FALLBACK_PAIRS = [
+  ["Kaffee","Tee"],["Löwe","Tiger"],["Fahrrad","Motorrad"],["Sommer","Frühling"],
+  ["Mond","Stern"],["Gitarre","Geige"],["Pizza","Lasagne"],["Schnee","Regen"],
+  ["Berg","Hügel"],["Buch","Zeitung"],["Hund","Wolf"],["Apfel","Birne"],
+  ["Zug","Bus"],["Uhr","Kalender"],["Meer","See"],["Kino","Theater"],
+  ["Bier","Wein"],["Schuhe","Socken"],["Küche","Badezimmer"],["Lehrer","Professor"],
+  ["Fußball","Handball"],["Wüste","Strand"],["Katze","Luchs"],["Brille","Kontaktlinse"],
+  ["Feuer","Kerze"],["Ritter","Soldat"],["Klavier","Orgel"],["Salat","Suppe"],
+  ["Schloss","Burg"],["Regenschirm","Mantel"],["Roboter","Computer"],["Insel","Halbinsel"],
+  ["Flugzeug","Hubschrauber"],["Nebel","Wolke"],["Schokolade","Karamell"],["Museum","Bibliothek"],
+  ["Zahnarzt","Friseur"],["Gewitter","Sturm"],["Pilz","Moos"],["Kompass","Landkarte"]
+];
+
+/* ---------- Wortgedächtnis ----------
+   Jeder Spieler merkt sich seine zuletzt gesehenen Wörter im eigenen Profil.
+   Beim Start einer Runde werden beide Listen zusammengeworfen und als
+   Sperrliste an die Wortgenerierung übergeben. */
+const RECENT_LIMIT = 300;
+
+async function collectRecentWords(uidA, uidB){
+  const out = new Set();
+  for (const uid of [uidA, uidB]){
+    try {
+      const s = await getDoc(userRef(uid));
+      (s.exists() ? (s.data().recentWords || []) : []).forEach(w => out.add(w));
+    } catch(_){}
+  }
+  return [...out].slice(-160);
+}
+
+async function rememberWord(gid, word){
+  if (!word) return;
+  const key = "imposter_word_" + gid;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, "1");
+  const list = (profile?.recentWords || []).filter(w => w.toLowerCase() !== word.toLowerCase());
+  list.push(word);
+  try { await updateDoc(userRef(me.uid), { recentWords: list.slice(-RECENT_LIMIT) }); } catch(_){}
+}
+
+async function fetchWordPair(avoid = [], config = null){
+  const blocked = new Set(avoid.map(w => String(w).toLowerCase()));
+  const category = config?.category || null;
+  try {
+    const r = await fetch(WORDS_ENDPOINT, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ avoid, category, difficulty: config?.difficulty ?? 2 })
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const d = await r.json();
+    if (!d.wordA || !d.wordB) throw new Error("leer");
+    return {
+      wordA: d.wordA, wordB: d.wordB, same: !!d.same,
+      pair: d.pair || { a: d.wordA, b: d.wordB }, category
+    };
+  } catch(_){
+    // Notfallliste: bevorzugt Paare, in denen kein gesperrtes Wort vorkommt.
+    const fresh = FALLBACK_PAIRS.filter(([a,b]) => !blocked.has(a.toLowerCase()) && !blocked.has(b.toLowerCase()));
+    const pool = fresh.length ? fresh : FALLBACK_PAIRS;
+    const [a,b] = pool[Math.floor(Math.random()*pool.length)];
+    const same = Math.random() < 0.5;
+    return { wordA: a, wordB: same ? a : b, same, pair: { a, b, source: "fallback" }, category };
+  }
+}
+
+/* ---------- Wortpaare dauerhaft sammeln ---------- */
+function pairKey(a, b){
+  return [String(a), String(b)]
+    .map(w => w.toLowerCase().trim())
+    .sort()
+    .join("~")
+    .replace(/[\/\.\#\$\[\]]/g, "-")
+    .slice(0, 400);
+}
+
+async function logWordPair(pair, cfg){
+  if (!pair?.a || !pair?.b) return;
+  const key = pairKey(pair.a, pair.b);
+  const ref = doc(db, "wordpairs", key);
+  try {
+    await setDoc(ref, {
+      a: pair.a, b: pair.b, key,
+      category:   cfg?.category   ?? null,
+      difficulty: cfg?.difficulty ?? 2,
+      source:     pair.source || "api",
+      uses:       increment(1),
+      lastAt:     serverTimestamp()
+    }, { merge: true });
+    await setDoc(ref, { firstAt: serverTimestamp() }, { merge: true })
+      .catch(()=>{});
+  } catch(_){ /* Sammeln darf das Spiel nie blockieren */ }
+}
+
+/* ---------- Worttipp von der Anthropic-API prüfen ---------- */
+function normalize(s){
+  return String(s||"").toLowerCase().trim()
+    .replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ß/g,"ss")
+    .replace(/[^a-z0-9]/g,"");
+}
+async function checkWordGuess(guess, word){
+  try {
+    const r = await fetch(CHECK_ENDPOINT, {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify({ guess, word })
+    });
+    if (!r.ok) throw new Error("http " + r.status);
+    const d = await r.json();
+    if (typeof d.ok !== "boolean") throw new Error("leer");
+    return { ok: d.ok, reason: d.reason || "" };
+  } catch(_){
+    const a = normalize(guess), b = normalize(word);
+    const ok = !!a && (a === b || (a.length > 3 && (b.startsWith(a) || a.startsWith(b))));
+    return { ok, reason: ok ? "Wörtlich getroffen." : "Stimmt nicht mit dem gesuchten Wort überein." };
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   8) Spielverlauf
+   ══════════════════════════════════════════════════════════════ */
+function watchGame(gid){
+  if (unsubGame) unsubGame();
+  currentGameId = gid;
+  myWord = null; verdictCache = resultCache = null;
+  sideEffectGuard = "";
+  renderedHints = 0;
+
+  unsubGame = onSnapshot(
+    doc(db,"games",gid),
+    { includeMetadataChanges: true },
+    async snap => {
+      if (!snap.exists()){ await leaveGame(); return; }
+      // Eigene, noch nicht vom Server bestätigte Änderung: warten.
+      // Sonst greifen die Sicherheitsregeln beim Nachladen der Geheimnisse noch nicht.
+      if (snap.metadata.hasPendingWrites) return;
+
+      currentGame = snap.data();
+      const s = currentGame.status;
+
+      if (s === "pending"){
+        if (currentGame.challenger === me.uid){
+          $("waitText").textContent = `Warte auf ${nameOf(currentGame.opponent)} …`;
+          show("screen-waiting");
+        }
+        return;
+      }
+      if (s === "declined"){  toast("Die Herausforderung wurde abgelehnt.");     await leaveGame(); return; }
+      if (s === "cancelled"){ toast("Die Herausforderung wurde zurückgezogen."); await leaveGame(); return; }
+      if (s === "active")   { await enterGame(gid);     return; }
+      if (s === "guessing") { await enterGuessing(gid); return; }
+      if (s === "checking") { await enterChecking(gid); return; }
+      if (s === "finished") { await showResult(gid);    return; }
+    }
+  );
+}
+
+function nameOf(uid){ return currentGame?.names?.[uid]?.username ?? "dein Gegner"; }
+function oppUid(){ return currentGame.players.find(p => p !== me.uid); }
+function once(key){
+  if (sideEffectGuard === key) return false;
+  sideEffectGuard = key;
+  return true;
+}
+
+async function enterGame(gid){
+  const opp = oppUid();
+  $("gMeBox").innerHTML  = avaHTML(currentGame.names?.[me.uid]);
+  $("gOppBox").innerHTML = avaHTML(currentGame.names?.[opp]);
+  const chat   = modeOf(currentGame) === "chat";
+  const arcade = istArcade(currentGame);
+  $("screen-game").classList.toggle("compact", chat);
+  const lbl = [modeLabel(currentGame.mode), configLabel(currentGame.config)].filter(Boolean).join(" · ");
+  $("gameConfig").innerHTML = `<span class="pill">${esc(lbl)}</span>`;
+
+  if (chat){
+    const myTurn = currentGame.turn === me.uid;
+    $("starterWho").textContent = myTurn ? "Du bist dran" : `${nameOf(opp)} ist dran`;
+    $("starterWho").previousElementSibling.textContent = "Am Zug";
+    $("hintPanel").classList.remove("hidden");
+    $("gameHowTo").textContent = "Tippt abwechselnd je ein Hinweiswort. Wer zuerst rät, beendet die Runde.";
+    $("hintInput").disabled = !myTurn;
+    $("btnHint").disabled = !myTurn;
+    $("hintInput").placeholder = myTurn ? "dein Hinweiswort" : "warte auf den Gegner …";
+    renderHints();
+  } else {
+    $("starterWho").textContent = currentGame.starter === me.uid ? "Du fängst an" : `${nameOf(opp)} fängt an`;
+    $("starterWho").previousElementSibling.textContent = "Erstes Hinweiswort";
+    $("hintPanel").classList.add("hidden");
+    $("gameHowTo").textContent = "Gebt euch außerhalb der App Hinweise. Wer zuerst tippt, beendet die Runde.";
+  }
+
+  if (myWord === null){
+    const s = await getDocRetry(doc(db,"games",gid,"secrets",me.uid));
+    myWord = s ? (s.data().word ?? "") : "?";
+    if (myWord === ""){
+      $("slipWord").classList.add("leer");
+      $("slipWord").innerHTML = "Kein Wort<small>du bist der Imposter</small>";
+    } else {
+      $("slipWord").classList.remove("leer");
+      $("slipWord").textContent = myWord;
+      if (s) rememberWord(gid, myWord);
+    }
+  }
+
+  // Arcade: wer kein Wort hat, rät stattdessen das Wort des Gegners.
+  const ohneWort = arcade && myWord === "";
+  $("btnBlank").classList.toggle("hidden", !arcade || ohneWort);
+  document.querySelector("#guessRow .gap2")?.classList.toggle("hidden", !arcade || ohneWort);
+  $("btnSame").classList.toggle("hidden", ohneWort);
+  $("btnImposter").classList.toggle("hidden", ohneWort);
+  document.querySelector("#guessRow .gap")?.classList.toggle("hidden", ohneWort);
+  $("btnBlankGuess").classList.toggle("hidden", !ohneWort);
+  $("btnImposter").textContent = arcade ? "Ähnliches Wort" : "Imposter";
+
+  sealSlip();
+  $("btnSame").disabled = $("btnImposter").disabled = $("btnBlank").disabled = $("btnBlankGuess").disabled = false;
+  musicEnterDuel();
+  show("screen-game");
+}
+
+/* ---------- Hinweise (Multiplayer) ---------- */
+let renderedHints = 0;
+
+function renderHints(){
+  const box = $("hintLog");
+  const hints = currentGame.hints || [];
+  if (!hints.length){
+    box.innerHTML = `<div class="empty">Noch keine Hinweise.</div>`;
+    renderedHints = 0;
+    return;
+  }
+  box.innerHTML = hints.map((h, i) =>
+    `<div class="hint ${h.by === me.uid ? "mine" : "his"} ${i >= renderedHints ? "new" : ""}">${esc(h.w)}</div>`
+  ).join("");
+  renderedHints = hints.length;
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendHint(){
+  if (!currentGameId || currentGame?.status !== "active") return;
+  if (currentGame.turn !== me.uid){ toast("Der Gegner ist am Zug."); return; }
+  const word = $("hintInput").value.trim().replace(/\s+/g, " ");
+  if (!word) return;
+  if (myWord && word.toLowerCase() === String(myWord).toLowerCase()){
+    toast("Das ist dein eigenes Wort — such dir einen Hinweis."); return;
+  }
+  const opp = oppUid();
+  $("hintInput").value = "";
+  $("hintInput").disabled = true;
+  $("btnHint").disabled = true;
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      hints: [...(currentGame.hints || []), { by: me.uid, w: word }],
+      turn: opp
+    });
+    push(opp, "hint", { word });
+  } catch(e){
+    toast("Hinweis konnte nicht gesendet werden.");
+    $("hintInput").value = word;
+    $("hintInput").disabled = false;
+    $("btnHint").disabled = false;
+  }
+}
+$("btnHint").onclick = sendHint;
+$("hintInput").addEventListener("keydown", e => { if (e.key === "Enter") sendHint(); });
+
+/* ---------- Wortkarte: gedrückt halten ---------- */
+const slip = $("slip");
+const openSlip = () => slip.classList.add("open");
+const sealSlip = () => slip.classList.remove("open");
+slip.addEventListener("pointerdown", e => { e.preventDefault(); openSlip(); });
+["pointerup","pointerleave","pointercancel"].forEach(ev => slip.addEventListener(ev, sealSlip));
+slip.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter"){ e.preventDefault(); openSlip(); } });
+slip.addEventListener("keyup",   e => { if (e.key === " " || e.key === "Enter") sealSlip(); });
+slip.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ---------- Tipp abgeben ---------- */
+async function submitGuess(value){
+  if (!currentGameId || currentGame?.status !== "active") return;
+  $("btnSame").disabled = $("btnImposter").disabled = true;
+  $("btnBlank").disabled = $("btnBlankGuess").disabled = true;
+  const gegner = oppUid();
+  try {
+    // Nach "Imposter" bzw. "Ähnliches Wort" folgt eventuell die Rate-Phase.
+    const weiter = (value === "imposter" || value === "similar" || value === "wordonly");
+    await updateDoc(doc(db,"games",currentGameId), {
+      status: weiter ? "guessing" : "finished",
+      guess: { by: me.uid, value },
+      guessedAt: serverTimestamp()
+    });
+    push(gegner, "finished");
+  } catch(e){
+    toast("Der Gegner war schneller.");
+    $("btnSame").disabled = $("btnImposter").disabled = false;
+    $("btnBlank").disabled = $("btnBlankGuess").disabled = false;
+  }
+}
+$("btnSame").onclick     = () => submitGuess("same");
+$("btnImposter").onclick = () => submitGuess(istArcade(currentGame) ? "similar" : "imposter");
+$("btnBlank").onclick    = () => submitGuess("blank");
+$("btnBlankGuess").onclick = () => submitGuess("wordonly");
+
+/* ---------- Phase: Wort raten ---------- */
+async function enterGuessing(gid){
+  const iGuessed = currentGame.guess?.by === me.uid;
+  const value    = currentGame.guess?.value;
+
+  // Wer ohne Wort ist, rät direkt — ohne vorher etwas zu erfahren.
+  if (value === "wordonly"){
+    if (iGuessed){
+      $("guessEyebrow").textContent = "Du hast kein Wort";
+      $("guessTitle").textContent   = "Rate sein Wort";
+      $("guessLead").textContent    = "Du bist der Imposter dieser Runde. Errätst du sein Wort, geht der Punkt an dich.";
+      $("wordGuessInput").value = "";
+      $("btnSubmitWordGuess").disabled = false;
+      $("btnSubmitWordGuess").textContent = "Tipp abgeben";
+      show("screen-guessing");
+    } else {
+      $("wgTitle").textContent = `${nameOf(oppUid())} rät dein Wort`;
+      $("wgText").textContent  = "Dein Gegner hatte kein Wort und versucht jetzt, deines zu treffen.";
+      show("screen-waitguess");
+    }
+    return;
+  }
+
+  if (!verdictCache){
+    const v = await getDocRetry(doc(db,"games",gid,"secrets","verdict"));
+    if (!v) return;
+    verdictCache = v.data();
+  }
+  const kind = verdictCache.kind || (verdictCache.same ? "same" : "similar");
+  const richtig = istArcade(currentGame) ? (kind === value) : (kind !== "same");
+
+  // Tipp war falsch — keine Rate-Runde.
+  if (!richtig){
+    if (iGuessed && once("autofinish:" + gid)){
+      try { await updateDoc(doc(db,"games",gid), { status:"finished", finishedAt: serverTimestamp() }); }
+      catch(_){}
+    }
+    return; // der finished-Snapshot übernimmt gleich
+  }
+
+  if (iGuessed){
+    $("guessEyebrow").textContent = istArcade(currentGame) ? "Richtig getippt" : "Imposter bestätigt";
+    $("guessTitle").textContent   = "Rate sein Wort";
+    $("guessLead").textContent    = "Ihr hattet unterschiedliche Wörter — der Punkt ist dir sicher. Wenn du jetzt errätst, welches Wort dein Gegner hatte, gibt es einen zweiten.";
+    $("wordGuessInput").value = "";
+    $("btnSubmitWordGuess").disabled = false;
+    $("btnSubmitWordGuess").textContent = "Tipp abgeben";
+    show("screen-guessing");
+  } else {
+    $("wgTitle").textContent = `${nameOf(oppUid())} rät dein Wort`;
+    $("wgText").textContent  = "Der Tipp war richtig — jetzt versucht er noch, dein Wort zu erraten.";
+    show("screen-waitguess");
+  }
+}
+
+async function sendWordGuess(text){
+  if (!currentGameId) return;
+  $("btnSubmitWordGuess").disabled = true;
+  $("btnSubmitWordGuess").textContent = "Wird geprüft …";
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      status: "checking",
+      wordGuess: { text: text || "" }
+    });
+  } catch(e){
+    toast("Fehler: " + (e.code || e.message));
+    $("btnSubmitWordGuess").disabled = false;
+    $("btnSubmitWordGuess").textContent = "Tipp abgeben";
+  }
+}
+$("btnSubmitWordGuess").onclick = () => {
+  const t = $("wordGuessInput").value.trim();
+  if (!t){ toast("Schreib ein Wort — oder überspringe."); return; }
+  sendWordGuess(t);
+};
+$("btnSkipWordGuess").onclick = () => sendWordGuess("");
+$("wordGuessInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") $("btnSubmitWordGuess").click();
+});
+
+/* ---------- Phase: Worttipp prüfen ---------- */
+async function enterChecking(gid){
+  const iGuessed = currentGame.guess?.by === me.uid;
+
+  if (!iGuessed){
+    $("wgTitle").textContent = "Tipp wird geprüft";
+    $("wgText").textContent  = `${nameOf(oppUid())} hat geraten. Gleich siehst du das Ergebnis.`;
+    show("screen-waitguess");
+    return;
+  }
+
+  if (!once("check:" + gid)) return;
+
+  const text = currentGame.wordGuess?.text || "";
+  let ok = false, reason = "Kein Tipp abgegeben.";
+
+  if (text){
+    // Der Tipp steht bereits unveränderlich im Dokument — jetzt darf das Wort gelesen werden.
+    const r = await getDocRetry(doc(db,"games",gid,"secrets","result"));
+    const opponentWord = r ? r.data().words?.[oppUid()] : null;
+    if (opponentWord){
+      const res = await checkWordGuess(text, opponentWord);
+      ok = res.ok; reason = res.reason;
+    } else {
+      reason = "Das Wort konnte nicht geladen werden.";
+    }
+  }
+
+  try {
+    await updateDoc(doc(db,"games",gid), {
+      status: "finished",
+      wordGuess: { text, ok, reason },
+      finishedAt: serverTimestamp()
+    });
+  } catch(e){ toast("Fehler beim Abschluss: " + (e.code || e.message)); }
+}
+
+$("btnForceEnd").onclick = async () => {
+  if (!currentGameId) return;
+  try {
+    await updateDoc(doc(db,"games",currentGameId), {
+      status: "finished",
+      wordGuess: { text: currentGame?.wordGuess?.text || "", ok: false, reason: "Runde vorzeitig beendet." },
+      finishedAt: serverTimestamp()
+    });
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+};
+
+/* ---------- Sieg-Animation ---------- */
+const FX_COLORS = ["#FFC93C","#E23E6B","#F4EFE4","#5BD6A4","#FFE08A"];
+let fxRunning = false;
+
+function celebrate(points){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const burst = $("pointsBurst");
+  burst.textContent = "+" + points;
+  burst.classList.remove("go");
+  void burst.offsetWidth;              // Reflow, damit die Animation neu startet
+  burst.classList.add("go");
+
+  const v = $("verdict");
+  v.classList.remove("pop");
+  void v.offsetWidth;
+  v.classList.add("pop");
+
+  const cv = $("fx");
+  const ctx = cv.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = window.innerWidth, H = window.innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cv.classList.add("on");
+
+  // Ursprung: Mitte der Ergebniskarte
+  const box = v.getBoundingClientRect();
+  const ox = box.left + box.width/2;
+  const oy = box.top + box.height/2;
+
+  const count = 70 + points * 40;
+  const bits = [];
+  for (let i = 0; i < count; i++){
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 5 + Math.random() * (9 + points * 2);
+    bits.push({
+      x: ox, y: oy,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 4,
+      w: 5 + Math.random() * 7,
+      h: 8 + Math.random() * 11,
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - .5) * .3,
+      color: FX_COLORS[(Math.random() * FX_COLORS.length) | 0],
+      wobble: Math.random() * Math.PI * 2,
+      life: 1
+    });
+  }
+
+  // Zusätzlich eine Druckwelle
+  const rings = [{ r: 10, a: .55 }];
+  if (points > 1) rings.push({ r: -40, a: .4 });
+
+  const t0 = performance.now();
+  fxRunning = true;
+
+  function frame(now){
+    const t = now - t0;
+    ctx.clearRect(0,0,W,H);
+
+    rings.forEach(ring => {
+      const r = ring.r + t * 0.55;
+      if (r > 0 && r < Math.max(W,H)){
+        ctx.beginPath();
+        ctx.arc(ox, oy, r, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(255,201,60,${Math.max(0, ring.a * (1 - r / (Math.max(W,H)*0.8)))})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+    });
+
+    let alive = 0;
+    for (const b of bits){
+      b.vy += 0.38;                     // Schwerkraft
+      b.vx *= 0.992;
+      b.wobble += 0.14;
+      b.x += b.vx + Math.sin(b.wobble) * 0.9;
+      b.y += b.vy;
+      b.rot += b.vr;
+      if (t > 1200) b.life -= 0.012;
+      if (b.y > H + 40 || b.life <= 0) continue;
+      alive++;
+
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.globalAlpha = Math.max(0, b.life);
+      ctx.fillStyle = b.color;
+      // gefaltetes Papierschnipsel: die Breite pulsiert
+      ctx.fillRect(-b.w/2, -b.h/2, b.w * Math.abs(Math.cos(b.wobble * .6)), b.h);
+      ctx.restore();
+    }
+
+    if (alive > 0 && t < 5000){ requestAnimationFrame(frame); }
+    else { ctx.clearRect(0,0,W,H); cv.classList.remove("on"); fxRunning = false; }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- Ergebnis ---------- */
+async function showResult(gid){
+  if (!resultCache){
+    const s = await getDocRetry(doc(db,"games",gid,"secrets","result"));
+    if (!s) return;
+    resultCache = s.data();
+  }
+  const g = currentGame;
+  const opp = oppUid();
+  const value = g.guess?.value;
+  const iGuessed = g.guess?.by === me.uid;
+  const kind = resultCache.kind || (resultCache.same ? "same" : "similar");
+  const wg = g.wordGuess || null;
+  const arcade = istArcade(g);
+
+  let correct, bonus;
+  if (value === "wordonly"){
+    correct = !!(wg && wg.ok);              // ohne Wort zählt nur der Worttreffer
+    bonus   = false;
+  } else if (arcade){
+    correct = (value === kind);
+    bonus   = !!(wg && wg.ok);
+  } else {
+    correct = (value === "same") === (kind === "same");
+    bonus   = !!(wg && wg.ok);
+  }
+
+  await recordStats(gid, iGuessed, correct, bonus, opp);
+
+  const v = $("verdict");
+  v.classList.remove("win","lose");
+  v.classList.add(correct ? "win" : "lose");
+  $("verdictEyebrow").textContent = iGuessed ? "Dein Tipp" : `Tipp von ${nameOf(opp)}`;
+  $("verdictBig").textContent = correct ? "Richtig!" : "Daneben.";
+
+  const LABELS = {
+    same: "„Gleiches Wort“", imposter: "„Imposter“",
+    similar: "„Ähnliches Wort“", blank: "„Der hat kein Wort“", wordonly: "auf das Wort"
+  };
+  const guessLabel = LABELS[value] || "";
+  const truth = kind === "same"  ? "Ihr hattet tatsächlich dasselbe Wort."
+              : kind === "blank" ? "Einer von euch hatte gar kein Wort."
+              : "Ihr hattet unterschiedliche Wörter.";
+  const points = (correct ? 1 : 0) + (bonus ? 1 : 0);
+  const goldTxt = points === 0 ? "" : points === 1 ? " +5 Gold." : " +10 Gold.";
+  const pts = points === 0 ? "Kein Punkt." : points === 1 ? "Ein Punkt." : "Zwei Punkte.";
+  $("verdictText").textContent = iGuessed
+    ? `Du hast auf ${guessLabel} getippt. ${truth} ${pts}${goldTxt}`
+    : `${nameOf(opp)} hat auf ${guessLabel} getippt. ${truth} ${points ? pts + " für ihn." : "Kein Punkt für ihn."}`;
+
+  // Worttipp
+  const card = $("wordGuessCard");
+  if (wg && wg.text){
+    card.classList.remove("hidden");
+    const who = iGuessed ? "Dein Tipp" : `${nameOf(opp)} tippte`;
+    $("wordGuessText").textContent =
+      `${who}: „${wg.text}“ — ${wg.ok ? "gilt. Extrapunkt." : "gilt nicht."}${wg.reason ? " " + wg.reason : ""}`;
+  } else {
+    card.classList.add("hidden");
+  }
+
+  $("wpMeName").textContent  = "Du";
+  $("wpOppName").textContent = nameOf(opp);
+  $("wpMeWord").textContent  = resultCache.words?.[me.uid] || "kein Wort";
+  $("wpOppWord").textContent = resultCache.words?.[opp]   || "kein Wort";
+  $("pairNote").textContent  = kind === "same"
+    ? "Gleiche Wörter — hier war nichts zu holen außer Vertrauen."
+    : kind === "blank"
+    ? "Ein leerer Zettel — reines Bluffen gegen reines Zuhören."
+    : "Zwei verwandte Wörter — der Unterschied war der ganze Trick.";
+
+  show("screen-result");
+
+  // Nur wenn ich selbst richtig lag, wird gefeiert.
+  if (iGuessed && correct && !fxRunning){
+    setTimeout(() => celebrate(1 + (bonus ? 1 : 0)), 140);
+  }
+}
+
+async function recordStats(gid, iGuessed, correct, bonus, oppId){
+  const key = "imposter_rec_" + gid;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, "1");
+  const patch = { "stats.games": increment(1) };
+  if (iGuessed){
+    const pts = (correct ? 1 : 0) + (bonus ? 1 : 0);
+    patch[correct ? "stats.wins" : "stats.wrong"] = increment(1);
+    if (oppId) patch[`vs.${oppId}.${correct ? "w" : "l"}`] = increment(1);
+
+    // Siegesserie fortschreiben
+    const nextStreak = correct ? (profile?.streak ?? 0) + 1 : 0;
+    patch["streak"] = nextStreak;
+    patch["bestStreak"] = Math.max(profile?.bestStreak ?? 0, nextStreak);
+    if (bonus) patch["bonusHits"] = increment(1);
+    if (pts){
+      patch["stats.points"] = increment(pts);
+      const g = pts === 2 ? 10 : 5;                    // 1 Punkt = 5 Gold, 2 Punkte = 10
+      patch["gold"] = increment(g);
+      patch["goldTotal"] = increment(g);
+    }
+  } else {
+    // Runde, in der der Gegner getippt hat — weder Sieg noch Niederlage
+    patch["stats.draws"] = increment(1);
+    if (oppId) patch[`vs.${oppId}.d`] = increment(1);
+  }
+  try { await updateDoc(userRef(me.uid), patch); } catch(_){}
+}
+
+$("btnBackHome").onclick = () => leaveGame();
+
+async function leaveGame(){
+  musicLeaveDuel();
+  if (unsubGame){ unsubGame(); unsubGame = null; }
+  currentGameId = currentGame = myWord = verdictCache = resultCache = null;
+  sideEffectGuard = "";
+  try { await updateDoc(userRef(me.uid), { activeGameId: null }); } catch(_){}
+  userCache.clear();
+  show("screen-home");
+  if (profile) loadFriends();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   9) Statistiken
+   ══════════════════════════════════════════════════════════════ */
+$("btnStats").onclick = async () => { await renderLeaderboard(); show("screen-stats"); };
+$("btnStatsBack").onclick = () => show("screen-home");
+
+function renderStats(){
+  const s = profile.stats || { games:0, points:0, wrong:0 };
+  $("stAvaBox").innerHTML = avaHTML(meLook());
+  $("stName").textContent = profile.username;
+  $("stGames").textContent  = s.games || 0;
+  $("stPoints").textContent = s.points || 0;
+  $("stWrong").textContent  = s.wrong  || 0;
+  const tips = (s.points||0) + (s.wrong||0);
+  $("stTrophy").innerHTML = trophyLineHTML(profile);
+  $("stRate").textContent = tips ? `Trefferquote ${Math.round((s.points/tips)*100)} %` : "Noch kein Tipp abgegeben";
+}
+
+async function renderLeaderboard(){
+  const ids = [me.uid, ...(profile.friends || [])];
+  const users = (await Promise.all(ids.map(getUser))).filter(Boolean);
+  users.sort((a,b) => (b.stats?.points ?? 0) - (a.stats?.points ?? 0));
+  $("leaderboard").innerHTML = users.map((u,i) => `
+    <div class="row-item">
+      <span class="sub" style="width:22px;font-family:var(--mono);color:var(--muted)">${i+1}</span>
+      ${avaHTML(u)}
+      <div class="grow">
+        <div class="name">${esc(u.username)}${u.uid===me.uid?" · du":""}</div>
+        ${recordHTML(u)}
+      </div>
+      <div style="font-family:var(--display);font-weight:800;font-size:1.3rem;color:var(--yellow)">${u.stats?.points ?? 0}</div>
+    </div>`).join("") || `<div class="empty">Noch keine Daten.</div>`;
+}
+</script>
+</body>
+</html>
