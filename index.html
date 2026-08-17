@@ -311,6 +311,47 @@
     display:grid;place-items:center;margin-bottom:9px
   }
 
+  /* ---------- Adminfenster ---------- */
+  .pair{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .pair:first-child{border-top:0}
+  .pair .ws{font-weight:600;font-size:.94rem;line-height:1.3}
+  .pair .ws em{font-style:normal;color:var(--muted);margin:0 5px}
+  .pair .meta{font-family:var(--mono);font-size:.66rem;color:var(--muted);margin-top:2px}
+  .del{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--ink);
+       border:1px solid var(--line);color:var(--magenta);font-size:1rem;line-height:1}
+  .adminbadge{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;
+              text-transform:uppercase;padding:3px 7px;border-radius:999px;
+              background:rgba(255,201,60,.18);color:var(--yellow);margin-left:6px}
+
+  /* ---------- Login ---------- */
+  .brand{text-align:center;padding-top:8vh}
+  .logo{width:104px;height:104px;margin:0 auto;display:block;
+        filter:drop-shadow(0 18px 34px rgba(0,0,0,.55))}
+  .wordmark{font-family:var(--display);font-weight:800;font-size:clamp(3rem,15vw,4.2rem);
+            letter-spacing:-.045em;line-height:1;margin-top:18px}
+  .slogan{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;
+          color:var(--muted);margin-top:12px;line-height:1.9}
+  .slogan b{color:var(--yellow);font-weight:400}
+  .authbtn{
+    display:flex;align-items:center;justify-content:center;gap:11px;width:100%;
+    padding:15px 18px;border-radius:14px;font-weight:700;font-size:1rem;margin-top:10px
+  }
+  .authbtn svg{flex:0 0 auto}
+  .auth-google{background:#fff;color:#1B1B1B}
+  .auth-apple{background:#000;color:#fff}
+  .auth-mail{background:transparent;color:var(--paper);border:1px solid var(--line)}
+  .authsep{display:flex;align-items:center;gap:12px;margin:20px 0 4px;
+           font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;
+           text-transform:uppercase;color:var(--muted)}
+  .authsep::before,.authsep::after{content:"";flex:1;height:1px;background:var(--line)}
+  #mailPanel{margin-top:14px}
+  #mailPanel input{margin-bottom:9px}
+  .tabs{display:flex;gap:6px;background:var(--ink);border:1px solid var(--line);
+        border-radius:13px;padding:4px;margin-bottom:12px}
+  .tabs button{flex:1;padding:9px;border-radius:9px;background:transparent;color:var(--muted);
+               font-weight:700;font-size:.88rem}
+  .tabs button.on{background:var(--ink-3);color:var(--paper)}
+
   /* ---------- Intro ---------- */
   #splash{
     position:fixed;inset:0;z-index:200;display:grid;place-items:center;
@@ -418,11 +459,51 @@
 
   <!-- AUTH -->
   <section id="screen-auth" class="screen">
-    <div style="padding-top:12vh">
-      <h1>Imposter</h1>
-      <div class="stack">
-        <button class="btn" id="btnGoogle">Mit Google anmelden</button>
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g transform="rotate(-13 46 64)">
+          <rect x="15" y="26" width="58" height="76" rx="14" fill="#F4EFE4" opacity=".38"/>
+          <circle cx="44" cy="54" r="8" fill="#0C2724" opacity=".45"/>
+          <rect x="28" y="74" width="32" height="5" rx="2.5" fill="#0C2724" opacity=".3"/>
+        </g>
+        <rect x="44" y="20" width="60" height="80" rx="15" fill="#123734" stroke="#FFC93C" stroke-width="3"/>
+        <circle cx="74" cy="50" r="10.5" fill="#FFC93C"/>
+        <rect x="58" y="72" width="32" height="5" rx="2.5" fill="#8CB0AA"/>
+        <rect x="58" y="83" width="20" height="5" rx="2.5" fill="#8CB0AA" opacity=".6"/>
+      </svg>
+      <h1 class="wordmark">Imposter</h1>
+      <p class="slogan">Wir sind Imposter<br><b>alle anderen lügen nur</b></p>
+    </div>
+
+    <div class="stack">
+      <button class="authbtn auth-google" id="btnGoogle">
+        <svg width="19" height="19" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.7 7l7.6 5.9c4.4-4.1 6.8-10.1 6.8-17.4z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.5 0 20.1 0 24s1 7.5 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>
+        Mit Google anmelden
+      </button>
+
+      <button class="authbtn auth-apple hidden" id="btnApple">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 12.54c-.02-2.35 1.92-3.48 2.01-3.53-1.1-1.6-2.8-1.82-3.4-1.85-1.45-.15-2.83.85-3.56.85-.74 0-1.87-.83-3.07-.81-1.58.02-3.04.92-3.85 2.33-1.64 2.85-.42 7.06 1.18 9.37.78 1.13 1.71 2.4 2.93 2.35 1.18-.05 1.62-.76 3.05-.76 1.42 0 1.82.76 3.06.74 1.26-.02 2.06-1.15 2.83-2.29.89-1.31 1.26-2.58 1.28-2.65-.03-.01-2.45-.94-2.47-3.75zM14.7 5.6c.65-.79 1.09-1.88.97-2.97-.94.04-2.07.62-2.74 1.41-.6.7-1.13 1.82-.99 2.89 1.05.08 2.11-.53 2.76-1.33z"/></svg>
+        Mit Apple anmelden
+      </button>
+
+      <button class="authbtn auth-mail" id="btnMailToggle">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6.5l9 6 9-6"/></svg>
+        Mit E-Mail anmelden
+      </button>
+
+      <div id="mailPanel" class="card hidden">
+        <div class="tabs" id="mailTabs">
+          <button data-tab="in" class="on">Anmelden</button>
+          <button data-tab="up">Registrieren</button>
+        </div>
+        <input type="text" id="mailAddr" placeholder="E-Mail" autocomplete="email" inputmode="email" />
+        <input type="text" id="mailPass" placeholder="Passwort" autocomplete="current-password" />
+        <button class="btn yellow" id="btnMailGo" style="margin-top:5px">Anmelden</button>
+        <button class="link" id="btnMailReset" style="width:100%;margin-top:8px">Passwort vergessen</button>
       </div>
+
+      <div class="authsep" id="guestSep">oder</div>
+      <button class="link" id="btnGuest" style="width:100%">Ohne Konto ausprobieren</button>
     </div>
   </section>
 
@@ -585,6 +666,12 @@
       <button class="btn ghost" id="btnInventory">Inventar öffnen</button>
     </div>
 
+    <div class="card hidden" id="adminCard">
+      <label>Verwaltung</label>
+      <p class="dim" style="font-size:.85rem;margin:0 0 12px">Wortpaare einsehen, ergänzen und exportieren.</p>
+      <button class="btn ghost" id="btnAdmin">Adminfenster öffnen</button>
+    </div>
+
     <div class="card">
       <label>Musik</label>
       <div class="row" style="justify-content:space-between;gap:14px">
@@ -609,6 +696,47 @@
 
     <div class="stack">
       <button class="btn yellow" id="optSave" disabled>Speichern</button>
+    </div>
+  </section>
+
+  <!-- ADMINFENSTER -->
+  <section id="screen-admin" class="screen">
+    <div class="head">
+      <button class="link" id="btnAdminBack">← Optionen</button>
+    </div>
+    <h1>Adminfenster</h1>
+
+    <div class="card stack">
+      <div class="row" style="justify-content:space-between">
+        <h3>Wortpaare</h3>
+        <span class="pill" id="pairCount">0</span>
+      </div>
+      <input type="text" id="pairSearch" placeholder="Suchen …" autocomplete="off" style="margin-top:10px" />
+      <div id="pairList" style="margin-top:6px;max-height:46vh;overflow-y:auto"></div>
+      <div class="row" style="margin-top:14px;gap:8px">
+        <button class="btn sm ghost" id="btnPairReload">Neu laden</button>
+        <button class="btn sm ghost" id="btnPairExport">Als JSON exportieren</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Paar hinzufügen</h3>
+      <div class="row" style="margin-top:10px;gap:8px">
+        <input type="text" id="newA" placeholder="Wort A" autocomplete="off" />
+        <input type="text" id="newB" placeholder="Wort B" autocomplete="off" />
+      </div>
+      <select id="newCat" style="margin-top:9px"></select>
+      <div class="levels" id="newLevel"></div>
+      <button class="btn yellow" id="btnPairAdd" style="margin-top:14px">Speichern</button>
+    </div>
+
+    <div class="card">
+      <h3>Administratoren</h3>
+      <div id="adminList" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:14px">
+        <input type="text" id="adminUser" placeholder="Benutzername" autocomplete="off" />
+        <button class="btn sm yellow" id="btnAdminAdd" style="flex:0 0 auto">Ernennen</button>
+      </div>
     </div>
   </section>
 
@@ -912,18 +1040,29 @@ const firebaseConfig = {
   appId:             "1:850278856028:web:4e920ec1533a5939e07d99"
 };
 
+/* Anmeldewege. Jeder muss in der Firebase Console unter
+   Authentication → Sign-in method aktiviert sein.
+   Apple erfordert zusätzlich ein kostenpflichtiges Apple-Developer-Konto. */
+const LOGIN = { google: true, apple: false, email: true, guest: true };
+
+/* Der Gründer-Account: darf immer ins Adminfenster und weitere Admins ernennen. */
+const ROOT_ADMIN = "dachsi";
+
 /* Vercel Functions, die die Anthropic API aufrufen. */
 const WORDS_ENDPOINT = "/api/words";
 const CHECK_ENDPOINT = "/api/check";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+  getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect,
+  signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, signInAnonymously,
   onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import {
-  getFirestore, doc, collection, getDoc, setDoc, updateDoc, deleteDoc,
-  onSnapshot, runTransaction, arrayUnion, arrayRemove, increment, serverTimestamp
+  getFirestore, doc, collection, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  query, orderBy, limit, onSnapshot, runTransaction,
+  arrayUnion, arrayRemove, increment, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const app  = initializeApp(firebaseConfig);
@@ -993,15 +1132,81 @@ const userCache = new Map();
 /* ══════════════════════════════════════════════════════════════
    4) Anmeldung
    ══════════════════════════════════════════════════════════════ */
-$("btnGoogle").onclick = async () => {
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: "select_account" });
+const AUTH_ERR = {
+  "auth/invalid-email": "Diese E-Mail-Adresse ist ungültig.",
+  "auth/missing-password": "Bitte ein Passwort eingeben.",
+  "auth/weak-password": "Das Passwort braucht mindestens 6 Zeichen.",
+  "auth/email-already-in-use": "Diese Adresse ist schon registriert — melde dich an.",
+  "auth/invalid-credential": "E-Mail oder Passwort stimmt nicht.",
+  "auth/user-not-found": "Zu dieser Adresse gibt es kein Konto.",
+  "auth/wrong-password": "Das Passwort stimmt nicht.",
+  "auth/too-many-requests": "Zu viele Versuche. Warte einen Moment.",
+  "auth/operation-not-allowed": "Dieser Anmeldeweg ist in Firebase noch nicht aktiviert.",
+  "auth/popup-blocked": "Das Fenster wurde blockiert. Erlaube Pop-ups oder nutze E-Mail."
+};
+const authMsg = e => AUTH_ERR[e?.code] || ("Anmeldung fehlgeschlagen: " + (e?.code || e?.message || ""));
+
+async function oauth(provider){
   try { await signInWithPopup(auth, provider); }
   catch(e){
-    if (String(e.code).includes("popup")) { try { await signInWithRedirect(auth, provider); return; } catch(_){} }
-    toast("Anmeldung fehlgeschlagen: " + (e.code || e.message));
+    if (String(e.code).includes("popup")){
+      try { await signInWithRedirect(auth, provider); return; } catch(_){}
+    }
+    toast(authMsg(e));
   }
+}
+
+// Nur aktivierte Wege zeigen
+if (!LOGIN.apple) $("btnApple").classList.add("hidden"); else $("btnApple").classList.remove("hidden");
+if (!LOGIN.email) $("btnMailToggle").classList.add("hidden");
+if (!LOGIN.guest){ $("btnGuest").classList.add("hidden"); $("guestSep").classList.add("hidden"); }
+
+$("btnGoogle").onclick = () => {
+  const p = new GoogleAuthProvider();
+  p.setCustomParameters({ prompt: "select_account" });
+  oauth(p);
 };
+$("btnApple").onclick = () => {
+  const p = new OAuthProvider("apple.com");
+  p.addScope("email"); p.addScope("name");
+  oauth(p);
+};
+$("btnGuest").onclick = async () => {
+  try { await signInAnonymously(auth); }
+  catch(e){ toast(authMsg(e)); }
+};
+
+let mailMode = "in";
+$("btnMailToggle").onclick = () => {
+  $("mailPanel").classList.toggle("hidden");
+  if (!$("mailPanel").classList.contains("hidden")) $("mailAddr").focus();
+};
+$("mailTabs").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
+  mailMode = b.dataset.tab;
+  $("mailTabs").querySelectorAll("[data-tab]").forEach(x => x.classList.toggle("on", x === b));
+  $("btnMailGo").textContent = mailMode === "in" ? "Anmelden" : "Konto erstellen";
+  $("btnMailReset").classList.toggle("hidden", mailMode !== "in");
+});
+$("btnMailGo").onclick = async () => {
+  const mail = $("mailAddr").value.trim();
+  const pass = $("mailPass").value;
+  if (!mail || !pass){ toast("E-Mail und Passwort eingeben."); return; }
+  const btn = $("btnMailGo"); btn.disabled = true;
+  try {
+    if (mailMode === "in") await signInWithEmailAndPassword(auth, mail, pass);
+    else                   await createUserWithEmailAndPassword(auth, mail, pass);
+  } catch(e){ toast(authMsg(e)); }
+  finally { btn.disabled = false; }
+};
+$("btnMailReset").onclick = async () => {
+  const mail = $("mailAddr").value.trim();
+  if (!mail){ toast("Trag zuerst deine E-Mail-Adresse ein."); return; }
+  try {
+    await sendPasswordResetEmail(auth, mail);
+    toast("E-Mail zum Zurücksetzen verschickt.");
+  } catch(e){ toast(authMsg(e)); }
+};
+$("mailPass").addEventListener("keydown", e => { if (e.key === "Enter") $("btnMailGo").click(); });
 $("btnSignOut").onclick = $("obSignOut").onclick = () => signOut(auth);
 
 onAuthStateChanged(auth, async user => {
@@ -1013,7 +1218,7 @@ onAuthStateChanged(auth, async user => {
   if (!snap.exists() || !snap.data().username){
     pendingPhoto = user.photoURL ? await urlToDataUrl(user.photoURL) : null;
     $("obAva").src = pendingPhoto || AVA_FALLBACK;
-    $("obUsername").value = suggestName(user.displayName || user.email || "");
+    $("obUsername").value = suggestName(user.displayName || user.email || "spieler" + Math.floor(Math.random()*9000+1000));
     show("screen-onboarding");
     return;
   }
@@ -1122,6 +1327,7 @@ function startSession(){
     if (!snap.exists()) return;
     profile = snap.data();
     countLoginDay();
+    loadAdmins();
     renderHome();
     renderStats();
     loadFriends();
@@ -1584,6 +1790,168 @@ async function equipItem(slot, id){
   } catch(e){ toast("Fehler: " + (e.code || e.message)); }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   Adminfenster
+   ══════════════════════════════════════════════════════════════ */
+let adminUids = new Set();
+let pairCache = [];
+let newPairLevel = 2;
+
+const isRootAdmin = u => (u?.usernameLower || "") === ROOT_ADMIN;
+const amAdmin = () => !!me && (isRootAdmin(profile) || adminUids.has(me.uid));
+
+async function loadAdmins(){
+  try {
+    const snap = await getDocs(collection(db, "admins"));
+    adminUids = new Set(snap.docs.map(d => d.id));
+  } catch(_){ adminUids = new Set(); }
+  $("adminCard").classList.toggle("hidden", !amAdmin());
+}
+
+$("btnAdmin").onclick    = async () => {
+  if (!amAdmin()){ toast("Kein Zugriff."); return; }
+  renderNewPairForm();
+  show("screen-admin");
+  await loadPairs();
+  await renderAdminList();
+};
+$("btnAdminBack").onclick = () => show("screen-options");
+$("btnPairReload").onclick = () => loadPairs();
+
+async function loadPairs(){
+  $("pairList").innerHTML = `<div class="empty">Wird geladen …</div>`;
+  try {
+    const q = query(collection(db, "wordpairs"), orderBy("lastAt", "desc"), limit(500));
+    const snap = await getDocs(q);
+    pairCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e){
+    $("pairList").innerHTML = `<div class="empty">Fehler: ${esc(e.code || e.message)}</div>`;
+    return;
+  }
+  renderPairs();
+}
+
+function renderPairs(){
+  const term = $("pairSearch").value.trim().toLowerCase();
+  const rows = term
+    ? pairCache.filter(p => (p.a + " " + p.b + " " + (p.category || "")).toLowerCase().includes(term))
+    : pairCache;
+  $("pairCount").textContent = `${rows.length}${term ? " / " + pairCache.length : ""}`;
+  $("pairList").innerHTML = rows.length ? rows.map(p => `
+    <div class="pair">
+      <div class="grow">
+        <div class="ws">${esc(p.a)}<em>↔</em>${esc(p.b)}</div>
+        <div class="meta">${esc(p.category || "ohne Kategorie")} · Stufe ${p.difficulty ?? 2} · ${p.uses ?? 1}× · ${p.source === "manual" ? "manuell" : p.source === "fallback" ? "Notfallliste" : "API"}</div>
+      </div>
+      <button class="del" data-del="${esc(p.id)}" aria-label="Löschen">×</button>
+    </div>`).join("") : `<div class="empty">Nichts gefunden.</div>`;
+
+  $("pairList").querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    try {
+      await deleteDoc(doc(db, "wordpairs", b.dataset.del));
+      pairCache = pairCache.filter(p => p.id !== b.dataset.del);
+      renderPairs();
+    } catch(e){ toast("Löschen fehlgeschlagen: " + (e.code || e.message)); }
+  });
+}
+$("pairSearch").addEventListener("input", renderPairs);
+
+$("btnPairExport").onclick = () => {
+  const data = pairCache.map(p => ({
+    a: p.a, b: p.b, category: p.category || null,
+    difficulty: p.difficulty ?? 2, uses: p.uses ?? 1, source: p.source || "api"
+  }));
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `wortpaare-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`${data.length} Paare exportiert.`);
+};
+
+function renderNewPairForm(){
+  const sel = $("newCat");
+  if (!sel.options.length){
+    sel.innerHTML = `<option value="">Ohne Kategorie</option>` +
+      CATEGORIES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+  $("newLevel").innerHTML = LEVELS.map(l =>
+    `<button class="level ${newPairLevel===l.n?"on":""}" data-nl="${l.n}">
+       <div class="n">${l.n}</div><div class="t">${l.t}</div></button>`).join("");
+  $("newLevel").querySelectorAll("[data-nl]").forEach(b => b.onclick = () => {
+    newPairLevel = Number(b.dataset.nl); renderNewPairForm();
+  });
+}
+
+$("btnPairAdd").onclick = async () => {
+  const a = $("newA").value.trim(), b = $("newB").value.trim();
+  if (!a || !b){ toast("Beide Wörter eingeben."); return; }
+  if (a.toLowerCase() === b.toLowerCase()){ toast("Die Wörter müssen verschieden sein."); return; }
+  const btn = $("btnPairAdd"); btn.disabled = true;
+  try {
+    const key = pairKey(a, b);
+    await setDoc(doc(db, "wordpairs", key), {
+      a, b, key,
+      category: $("newCat").value || null,
+      difficulty: newPairLevel,
+      source: "manual",
+      uses: 0,
+      firstAt: serverTimestamp(),
+      lastAt: serverTimestamp()
+    }, { merge: true });
+    $("newA").value = ""; $("newB").value = "";
+    toast("Paar gespeichert.");
+    await loadPairs();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
+async function renderAdminList(){
+  const entries = [];
+  if (profile && isRootAdmin(profile)) entries.push({ uid: me.uid, username: profile.username, root: true });
+  for (const uid of adminUids){
+    if (entries.some(e => e.uid === uid)) continue;
+    const u = await getUser(uid);
+    entries.push({ uid, username: u?.username || uid.slice(0,8), root: false });
+  }
+  $("adminList").innerHTML = entries.map(e => `
+    <div class="row-item">
+      <div class="grow">
+        <div class="name">${esc(e.username)}${e.root ? `<span class="adminbadge">Gründer</span>` : ""}</div>
+      </div>
+      ${e.root ? "" : `<button class="btn sm ghost" data-unadmin="${esc(e.uid)}">Entziehen</button>`}
+    </div>`).join("") || `<div class="empty">Noch niemand ernannt.</div>`;
+
+  $("adminList").querySelectorAll("[data-unadmin]").forEach(b => b.onclick = async () => {
+    try {
+      await deleteDoc(doc(db, "admins", b.dataset.unadmin));
+      adminUids.delete(b.dataset.unadmin);
+      await renderAdminList();
+    } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  });
+}
+
+$("btnAdminAdd").onclick = async () => {
+  const name = $("adminUser").value.trim().toLowerCase();
+  if (!name) return;
+  const btn = $("btnAdminAdd"); btn.disabled = true;
+  try {
+    const s = await getDoc(doc(db, "usernames", name));
+    if (!s.exists()){ toast("Diesen Benutzernamen gibt es nicht."); return; }
+    const uid = s.data().uid;
+    await setDoc(doc(db, "admins", uid), {
+      username: name, addedBy: profile.username, addedAt: serverTimestamp()
+    });
+    adminUids.add(uid);
+    $("adminUser").value = "";
+    toast("Adminrechte vergeben.");
+    await renderAdminList();
+  } catch(e){ toast("Fehler: " + (e.code || e.message)); }
+  finally { btn.disabled = false; }
+};
+
 /* ---------- Optionen ---------- */
 let optPhoto = null;
 
@@ -1932,6 +2300,7 @@ async function acceptChallenge(gid, btn){
     });
     await updateDoc(userRef(me.uid), { activeGameId: gid });
     await deleteDoc(doc(db,"users",me.uid,"invites",gid));
+    logWordPair(words.pair, { category: words.category, difficulty: g.config?.difficulty ?? 2 });
     watchGame(gid);
   } catch(e){
     toast("Start fehlgeschlagen: " + (e.code || e.message));
@@ -1964,7 +2333,7 @@ const FALLBACK_PAIRS = [
    Jeder Spieler merkt sich seine zuletzt gesehenen Wörter im eigenen Profil.
    Beim Start einer Runde werden beide Listen zusammengeworfen und als
    Sperrliste an die Wortgenerierung übergeben. */
-const RECENT_LIMIT = 50;
+const RECENT_LIMIT = 300;
 
 async function collectRecentWords(uidA, uidB){
   const out = new Set();
@@ -1974,7 +2343,7 @@ async function collectRecentWords(uidA, uidB){
       (s.exists() ? (s.data().recentWords || []) : []).forEach(w => out.add(w));
     } catch(_){}
   }
-  return [...out].slice(-80);
+  return [...out].slice(-160);
 }
 
 async function rememberWord(gid, word){
@@ -1998,15 +2367,46 @@ async function fetchWordPair(avoid = [], config = null){
     if (!r.ok) throw new Error("http " + r.status);
     const d = await r.json();
     if (!d.wordA || !d.wordB) throw new Error("leer");
-    return { wordA: d.wordA, wordB: d.wordB, same: !!d.same };
+    return {
+      wordA: d.wordA, wordB: d.wordB, same: !!d.same,
+      pair: d.pair || { a: d.wordA, b: d.wordB }, category
+    };
   } catch(_){
     // Notfallliste: bevorzugt Paare, in denen kein gesperrtes Wort vorkommt.
     const fresh = FALLBACK_PAIRS.filter(([a,b]) => !blocked.has(a.toLowerCase()) && !blocked.has(b.toLowerCase()));
     const pool = fresh.length ? fresh : FALLBACK_PAIRS;
     const [a,b] = pool[Math.floor(Math.random()*pool.length)];
     const same = Math.random() < 0.5;
-    return { wordA: a, wordB: same ? a : b, same };
+    return { wordA: a, wordB: same ? a : b, same, pair: { a, b, source: "fallback" }, category };
   }
+}
+
+/* ---------- Wortpaare dauerhaft sammeln ---------- */
+function pairKey(a, b){
+  return [String(a), String(b)]
+    .map(w => w.toLowerCase().trim())
+    .sort()
+    .join("~")
+    .replace(/[\/\.\#\$\[\]]/g, "-")
+    .slice(0, 400);
+}
+
+async function logWordPair(pair, cfg){
+  if (!pair?.a || !pair?.b) return;
+  const key = pairKey(pair.a, pair.b);
+  const ref = doc(db, "wordpairs", key);
+  try {
+    await setDoc(ref, {
+      a: pair.a, b: pair.b, key,
+      category:   cfg?.category   ?? null,
+      difficulty: cfg?.difficulty ?? 2,
+      source:     pair.source || "api",
+      uses:       increment(1),
+      lastAt:     serverTimestamp()
+    }, { merge: true });
+    await setDoc(ref, { firstAt: serverTimestamp() }, { merge: true })
+      .catch(()=>{});
+  } catch(_){ /* Sammeln darf das Spiel nie blockieren */ }
 }
 
 /* ---------- Worttipp von der Anthropic-API prüfen ---------- */
